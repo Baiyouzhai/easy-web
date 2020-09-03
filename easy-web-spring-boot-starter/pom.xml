@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>byz</groupId>
+	<artifactId>easy-web-spring-boot-starter</artifactId>
+	<description>easy网站启动包</description>
+	<version>1.0.0</version>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>byz</groupId>
+				<artifactId>easy-web-spring-boot-dependencies</artifactId>
+				<version>1.0.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>byz</groupId>
+			<artifactId>easy-database-spring-boot-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>byz</groupId>
+			<artifactId>easy-html-spring-boot-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>byz</groupId>
+			<artifactId>easy-jscript-spring-boot-starter</artifactId>
+		</dependency>
+	</dependencies>
+
+</project>

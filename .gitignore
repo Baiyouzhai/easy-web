@@ -1,3 +1,22 @@
+# eclipse
+*/.settings
+*/.settings/*
+*/.classpath
+*/.factorypath
+*/.project
+
+# java build
+*/target
+*/target/*
+*/bin
+*/bin/*
+
+# html
+*/node_modules
+*/node_modules/*
+*/dist
+*/dist/*
+
 # Compiled class file
 *.class
 

@@ -1,0 +1,79 @@
+server:
+  port: 12580
+
+
+spring:
+  devtools:
+    restart:
+      enabled: true
+
+  thymeleaf:
+    cache: false
+    mode: HTML5
+    encoding: UTF-8
+
+  datasource:
+    druid:
+      name: db1
+      db-type: com.alibaba.druid.pool.DruidDataSource
+      driverClassName: oracle.jdbc.driver.OracleDriver
+      url: jdbc:oracle:thin:@//192.168.182.129:1521/orcl
+      username: usr_ggxx
+      password: suzheng
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      max-wait: 60000
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 1 FROM DUAL
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      filter:
+        commons-log.connection-logger-name: stat,wall,log4j
+        stat.log-slow-sql: true
+        stat.slow-sql-millis: 2000
+      connect-properties:
+        druid.stat.mergeSql: true
+        druid.stat.slowSqlMillis: 5000
+      use-global-data-source-stat: true
+
+
+database:
+  use-more-database: false
+  moreDataBase:
+    - name: db2
+      db-type: com.alibaba.druid.pool.DruidDataSource
+      driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+      url: jdbc:sqlserver://192.168.1.107:1433; DatabaseName=HR_DB;
+      username: sa
+      password: sasa
+
+
+jscript:
+  short-name: nashorn
+  save-path: /jscript
+  plus:
+    #open 默认 true 将会使用包管理和版本控制器
+    open: true
+    #package-prefix 默认"root"
+    package-prefix: root
+    sub-special-character: _
+  database:
+    #open false 将会在save-path下存储并使用脚本
+    open: true
+    name: db1
+  web:
+    open: true
+    request-url: /api
+    manage-url: /api-manage
+
+
+html:
+  #manage 默认 "/manage"，在此位置下注册/{manage}/index，/{manage}/template 两个页面
+  manage: /manage
+  #view 默认 "/view"
+  view: 

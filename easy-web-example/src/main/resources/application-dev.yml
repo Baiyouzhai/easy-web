@@ -1,0 +1,51 @@
+server:
+  port: 12580
+
+
+spring:
+  devtools:
+    restart:
+      enabled: true
+
+  thymeleaf:
+    cache: false
+    mode: HTML5
+    encoding: UTF-8
+
+  datasource:
+    druid:
+      name: db1
+      db-type: com.alibaba.druid.pool.DruidDataSource
+      driverClassName: oracle.jdbc.driver.OracleDriver
+      url: jdbc:oracle:thin:@//192.168.182.128/orcl
+      username: scott
+      password: suzheng
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      max-wait: 60000
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 1 FROM DUAL
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      filter:
+        commons-log.connection-logger-name: stat,wall,log4j
+        stat.log-slow-sql: true
+        stat.slow-sql-millis: 2000
+      connect-properties:
+        druid.stat.mergeSql: true
+        druid.stat.slowSqlMillis: 5000
+      use-global-data-source-stat: true
+
+jscript:
+  engine-name: nashorn
+  save-path: jscript
+  use-manage: true
+  api:
+    api-help: true
+    edit-resource-path: file:F:\兴趣\byz\jscript\dist\
+    open-edit: true
