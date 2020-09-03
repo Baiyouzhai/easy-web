@@ -11,9 +11,6 @@
 */bin
 */bin/*
 
-# 工程需要
-!easy-web/easy-jscript/lib/nashorn.jar
-
 # html
 */node_modules
 */node_modules/*
@@ -40,6 +37,9 @@
 *.zip
 *.tar.gz
 *.rar
+
+# 工程需要
+!easy-web/easy-jscript/lib/nashorn.jar
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
