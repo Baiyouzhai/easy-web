@@ -36,11 +36,11 @@ public class Utils {
 
 	static { // 注册
 		try {
-			Class.forName("org.byz.easy.jscript.core.SimpleJscript");
-			Class.forName("org.byz.easy.jscript.core.SimpleJscriptInit");
-			Class.forName("org.byz.easy.jscript.core.SimpleJscriptFunction");
-			Class.forName("org.byz.easy.jscript.core.nashorn.NashornEngine");
-			Class.forName("org.byz.easy.jscript.core.v8.V8Engine");
+			Class.forName("byz.easy.jscript.core.SimpleJscript");
+			Class.forName("byz.easy.jscript.core.SimpleJscriptInit");
+			Class.forName("byz.easy.jscript.core.SimpleJscriptFunction");
+			Class.forName("byz.easy.jscript.core.nashorn.NashornEngine");
+			Class.forName("byz.easy.jscript.core.v8.V8Engine");
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
