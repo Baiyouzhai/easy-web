@@ -47,5 +47,5 @@ jscript:
   use-manage: true
   api:
     api-help: true
-    edit-resource-path: file:F:\兴趣\byz\jscript\dist\
+    edit-resource-path: file:../easy-vue-edit-monaco/dist/
     open-edit: true
