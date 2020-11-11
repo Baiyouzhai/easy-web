@@ -1,4 +1,4 @@
-package byz.easy.jscript.core.nashorn;
+package byz.easy.jscript.nashorn;
 
 import java.util.Arrays;
 import java.util.HashMap;

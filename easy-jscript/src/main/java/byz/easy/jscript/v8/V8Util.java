@@ -1,4 +1,4 @@
-package byz.easy.jscript.core.v8;
+package byz.easy.jscript.v8;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -7,11 +7,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Array;
+import com.eclipsesource.v8.V8Function;
 import com.eclipsesource.v8.V8Object;
 
 import byz.easy.jscript.core.JscriptException;
@@ -22,7 +23,7 @@ import byz.easy.jscript.core.JscriptException;
  */
 public class V8Util {
 
-	public static V8Object getV8Object(V8 parent, V8Object result, Map<String, Object> map) throws JscriptException {
+	public static V8Object getV8Object(V8 parent, V8Object result, Map<String, Object> map, boolean getMethod) throws JscriptException {
 		Set<Entry<String, Object>> entrySet = map.entrySet();
 		for (Entry<String, Object> entry : entrySet) {
 			Object value = entry.getValue();
@@ -37,18 +38,18 @@ public class V8Util {
 			else if (value instanceof String)
 				result.add(entry.getKey(), (String) value);
 			else if (value instanceof Map)
-				result.add(entry.getKey(), getV8Object(parent, new V8Object(parent), ((Map<String, Object>) value)));
+				result.add(entry.getKey(), getV8Object(parent, new V8Object(parent), ((Map<String, Object>) value), getMethod));
 			else if (value instanceof List)
-				result.add(entry.getKey(), getV8Object(parent, new V8Array(parent), ((List<Object>) value)));
+				result.add(entry.getKey(), getV8Object(parent, new V8Array(parent), ((List<Object>) value), getMethod));
 			else if (value.getClass().isArray())
-				result.add(entry.getKey(), getV8Object(parent, new V8Array(parent), (Object[]) value));
+				result.add(entry.getKey(), getV8Object(parent, new V8Array(parent), (Object[]) value, getMethod));
 			else // 对象
-				result.add(entry.getKey(), getV8Object(parent, new V8Object(parent), value));
+				result.add(entry.getKey(), getV8Object(parent, new V8Object(parent), value, getMethod));
 		}
 		return result;
 	}
 
-	public static V8Object getV8Object(V8 parent, V8Array array, List<Object> list) throws JscriptException {
+	public static V8Object getV8Object(V8 parent, V8Array array, List<Object> list, boolean getMethod) throws JscriptException {
 		for (Object value : list) {
 			if (value instanceof Boolean)
 				array.push((Boolean) value);
@@ -59,22 +60,22 @@ public class V8Util {
 			else if (value instanceof String)
 				array.push((String) value);
 			else if (value instanceof Map)
-				array.push(getV8Object(parent, new V8Object(parent), ((Map<String, Object>) value)));
+				array.push(getV8Object(parent, new V8Object(parent), ((Map<String, Object>) value), getMethod));
 			else if (value instanceof List)
-				array.push(getV8Object(parent, new V8Array(parent), ((List<Object>) value)));
+				array.push(getV8Object(parent, new V8Array(parent), ((List<Object>) value), getMethod));
 			else if (value.getClass().isArray())
-				array.push(getV8Object(parent, new V8Array(parent), (Object[]) value));
+				array.push(getV8Object(parent, new V8Array(parent), (Object[]) value, getMethod));
 			else // 对象
-				array.push(getV8Object(parent, new V8Object(parent), value));
+				array.push(getV8Object(parent, new V8Object(parent), value, getMethod));
 		}
 		return array;
 	}
 
-	public static V8Object getV8Object(V8 parent, V8Array array, Object[] value) throws JscriptException {
-		return getV8Object(parent, array, Arrays.asList(value));
+	public static V8Object getV8Object(V8 parent, V8Array array, Object[] value,boolean getMethod) throws JscriptException {
+		return getV8Object(parent, array, Arrays.asList(value), getMethod);
 	}
 
-	public static V8Object getV8Object(V8 parent, V8Object json, Object value) throws JscriptException {
+	public static V8Object getV8Object(V8 parent, V8Object json, Object value, boolean getMethod) throws JscriptException {
 		Field[] fields = value.getClass().getDeclaredFields();
 		for (Field field : fields) {
 			if (!field.isAccessible())
@@ -92,22 +93,22 @@ public class V8Util {
 				else if (_value instanceof String)
 					json.add(field.getName(), (String) _value);
 				else if (_value instanceof Map)
-					json.add(field.getName(), getV8Object(parent, new V8Object(parent), ((Map<String, Object>) _value)));
+					json.add(field.getName(), getV8Object(parent, new V8Object(parent), ((Map<String, Object>) _value), getMethod));
 				else if (_value instanceof List)
-					json.add(field.getName(), getV8Object(parent, new V8Array(parent), ((List<Object>) _value)));
+					json.add(field.getName(), getV8Object(parent, new V8Array(parent), ((List<Object>) _value), getMethod));
 				else if (_value.getClass().isArray())
-					json.add(field.getName(), getV8Object(parent, new V8Array(parent), (Object[]) _value));
+					json.add(field.getName(), getV8Object(parent, new V8Array(parent), (Object[]) _value, getMethod));
 				else // 对象
-					json.add(field.getName(), getV8Object(parent, new V8Object(parent), _value));
+					json.add(field.getName(), getV8Object(parent, new V8Object(parent), _value, getMethod));
 			} catch (IllegalArgumentException | IllegalAccessException e) {
-				JscriptException _e = new JscriptException("JS内在对象构建失败：" + field.getName() + " -> " + value.toString());
-				e.setStackTrace(e.getStackTrace());
-				throw _e;
+				throw new JscriptException("JS内在对象构建失败：" + field.getName() + " -> " + value.toString(), e);
 			}
 		}
-		Method[] methods = value.getClass().getDeclaredMethods();
-		for (Method method : methods)
-			json.registerJavaMethod(value, method.getName(), method.getName(), method.getParameterTypes());
+		if (getMethod) {
+			Method[] methods = value.getClass().getDeclaredMethods();
+			for (Method method : methods)
+				json.registerJavaMethod(value, method.getName(), method.getName(), method.getParameterTypes());
+		}
 		return json;
 	}
 
@@ -118,6 +119,9 @@ public class V8Util {
 			for (int i = 0; i < temp.length(); i++)
 				result.add(converV8Object(temp.get(i)));
 			return result;
+		} else if (executeResult instanceof V8Function) {
+			V8Function temp = (V8Function) executeResult;
+			return temp;
 		} else if (executeResult instanceof V8Object) {
 			if (V8Object.class.getDeclaredClasses()[0] == executeResult.getClass()) // V8Object$Undefined
 				return null;

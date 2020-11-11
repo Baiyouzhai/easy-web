@@ -1,4 +1,4 @@
-package byz.easy.jscript.core.itf;
+package byz.easy.jscript.extend;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import byz.easy.common.JavaUtil;
 import byz.easy.jscript.core.JscriptException;
+import byz.easy.jscript.core.JscriptFunction;
 
 /**
  * {@link JscriptFunction} 增加包属性

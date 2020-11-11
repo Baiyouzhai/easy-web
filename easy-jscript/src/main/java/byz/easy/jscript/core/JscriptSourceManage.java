@@ -1,48 +1,63 @@
-package byz.easy.jscript.core.itf;
+package byz.easy.jscript.core;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
+ * Jscript资源管理器
+ * 
  * @author
  * @since 2020年9月1日
  */
-public interface JscriptLoader {
+public interface JscriptSourceManage {
+
+	public static JscriptClassBuilder builder = JscriptClassBuilder.getDefault();
 
 	/**
-	 * 设置排序
+	 * 加载资源
 	 * 
-	 * @param jscript
-	 * @param order
-	 */
-	void setOrder(Jscript jscript, long order);
-
-	/**
-	 * 获得指定排序
-	 * 
-	 * @param jscript
-	 * @return null为未记录排序内容
-	 */
-	Long getOrder(Jscript jscript);
-
-	/**
-	 * 映射
 	 * @return
+	 * @throws JscriptException
 	 */
-	Map<Jscript, Long> getOrderMapping();
+	void load() throws JscriptException;
 
 	/**
-	 * 排序好的脚本
+	 * 获取排序好的脚本
 	 * 
 	 * @return
 	 */
-	default List<Jscript> getOrderList() {
-		return getOrderMapping().entrySet().stream().sorted((entry1, entry2) -> {
-			if (entry1.getValue() == entry2.getValue())
-				return 0;
-			return entry1.getValue() < entry2.getValue() ? -1 : 1;
-		}).map(Map.Entry::getKey).collect(Collectors.toList());
+	List<Jscript> getOrderList();
+
+	/**
+	 * 保存/添加资源
+	 * 
+	 * @param jscript
+	 */
+	void save(Jscript jscript);
+
+	/**
+	 * 删除资源
+	 * 
+	 * @param jscript
+	 */
+	void delete(Jscript jscript);
+
+	/**
+	 * 更新资源
+	 * 
+	 * @param old
+	 * @param _new
+	 */
+	default void update(Jscript old, Jscript _new) {
+		delete(old);
+		save(_new);
 	}
+
+	/**
+	 * 预留, 获取原始资源对象以方便后续操作
+	 * 
+	 * @return
+	 * @throws JscriptException
+	 */
+	List<JscriptSource> getJscriptSources() throws JscriptException;
 
 }

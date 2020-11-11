@@ -1,4 +1,4 @@
-package byz.easy.jscript.core.graal;
+package byz.easy.jscript.graal;
 
 import java.util.function.Consumer;
 

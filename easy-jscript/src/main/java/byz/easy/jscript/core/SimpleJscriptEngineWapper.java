@@ -1,18 +1,14 @@
 package byz.easy.jscript.core;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
 
-import javax.script.ScriptException;
-
-import byz.easy.common.LambdaExceptionUtil;
-import byz.easy.jscript.core.itf.Jscript;
-import byz.easy.jscript.core.itf.JscriptEngine;
-import byz.easy.jscript.core.itf.JscriptEngineWapper;
-import byz.easy.jscript.core.itf.JscriptFunction;
-import byz.easy.jscript.core.nashorn.NashornUtil;
+import byz.easy.common.LambdaUtil;
+import byz.easy.jscript.nashorn.NashornUtil;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 /**
@@ -27,23 +23,15 @@ public class SimpleJscriptEngineWapper implements JscriptEngineWapper {
 	protected Map<String, JscriptFunction> functions;
 	protected Map<String, Jscript> aliases;
 
-	public SimpleJscriptEngineWapper() {
-		variables = new HashMap<>();
-		functions = new HashMap<>();
-		aliases = new HashMap<>();
-	}
-
-	public SimpleJscriptEngineWapper(String engineName) throws ScriptException {
-		this(Utils.buildJscriptEngine(engineName));
-	}
-
-	public SimpleJscriptEngineWapper(JscriptEngine engine) throws ScriptException {
-		this();
+	public SimpleJscriptEngineWapper(JscriptEngine engine) throws JscriptException {
+		variables = new ConcurrentHashMap<>();
+		functions = new ConcurrentHashMap<>();
+		aliases = new ConcurrentHashMap<>();
 		bindEngine(engine);
 	}
 
 	@Override
-	public JscriptEngineWapper bindEngine(JscriptEngine engine) throws ScriptException {
+	public JscriptEngineWapper bindEngine(JscriptEngine engine) throws JscriptException {
 		this.engine = engine;
 		Set<String> names = engine.getNames();
 		if (!names.isEmpty()) {
@@ -103,8 +91,8 @@ public class SimpleJscriptEngineWapper implements JscriptEngineWapper {
 	}
 
 	@Override
-	public void setFunctions(Map<String, JscriptFunction> functions) throws ScriptException {
-		functions.forEach(LambdaExceptionUtil.applyConsumer((name, function) -> {
+	public void setFunctions(Collection<JscriptFunction> functions) throws JscriptException {
+		functions.forEach(LambdaUtil.apply(function -> {
 			putFunction(function);
 		}));
 	}
@@ -115,7 +103,7 @@ public class SimpleJscriptEngineWapper implements JscriptEngineWapper {
 	}
 
 	@Override
-	public JscriptFunction putFunction(JscriptFunction function) throws ScriptException {
+	public JscriptFunction putFunction(JscriptFunction function) throws JscriptException {
 		String name = function.getName();
 		if (variables.containsKey(name))
 			throw new JscriptRuntimeException("已有变量占用此名称: name -> " + name);
@@ -156,17 +144,27 @@ public class SimpleJscriptEngineWapper implements JscriptEngineWapper {
 			throw new JscriptRuntimeException("已有变量占用此名称: name -> " + name);
 		if (functions.containsKey(name))
 			throw new JscriptRuntimeException("已有函数占用此名称: name -> " + name);
+		try {
+			engine.put(jscript);
+		} catch (JscriptException e) {
+			throw new JscriptRuntimeException(e);
+		}
 		return aliases.put(name, jscript);
 	}
 
 	@Override
-	public Jscript getJscript(String alias) {
+	public Jscript getAlias(String alias) {
 		return aliases.get(alias);
 	}
 
 	@Override
-	public Set<String> getAlias(Jscript jscript) {
-		return aliases.entrySet().stream().filter(entry -> entry.getValue() == jscript).map(Map.Entry::getKey).collect(Collectors.toSet());
+	public List<String> getAlias(Jscript jscript) {
+		List<String> names = new ArrayList<>();
+		getAliases().forEach((name, _jscript) -> {
+			if (_jscript == jscript)
+				names.add(name);
+		});
+		return names;
 	}
 
 	@Override
@@ -176,17 +174,9 @@ public class SimpleJscriptEngineWapper implements JscriptEngineWapper {
 
 	@Override
 	public void removeAliases(Jscript jscript) {
-		this.aliases = getAliases().entrySet().stream().filter(entry -> entry.getValue() != jscript).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-	}
-
-	@Override
-	public SimpleJscriptEngineWapper getTempEngine() throws ScriptException {
-		JscriptEngine engine = getJscriptEngine().getTempEngine();
-		SimpleJscriptEngineWapper wapper = new SimpleJscriptEngineWapper(engine);
-		wapper.setVariables(getVariables());
-		wapper.setFunctions(getFunctions());
-		wapper.setAliases(getAliases());
-		return wapper;
+		List<String> names = getAlias(jscript);
+		for (String name : names)
+			aliases.remove(name);
 	}
 
 }

@@ -8,12 +8,12 @@ import java.util.stream.Collectors;
 
 import javax.script.ScriptException;
 
+import byz.easy.jscript.core.Jscript;
+import byz.easy.jscript.core.JscriptEngine;
+import byz.easy.jscript.core.JscriptFunction;
+import byz.easy.jscript.core.JscriptInit;
 import byz.easy.jscript.core.JscriptRuntimeException;
 import byz.easy.jscript.core.SimpleJscriptInit;
-import byz.easy.jscript.core.itf.Jscript;
-import byz.easy.jscript.core.itf.JscriptEngine;
-import byz.easy.jscript.core.itf.JscriptFunction;
-import byz.easy.jscript.core.itf.JscriptInit;
 
 /**
  * 
@@ -33,7 +33,7 @@ public class SimpleJscriptManage extends AbstractJscriptManage {
 	}
 
 	public SimpleJscriptManage(String engineName, String savePath) throws ScriptException {
-		super(JscriptUtil.buildJscriptEngine(engineName), savePath);
+		super(JscriptSerializableUtil.buildJscriptEngine(engineName), savePath);
 	}
 
 	public SimpleJscriptManage(JscriptEngine engine, String savePath) throws ScriptException {
@@ -45,13 +45,13 @@ public class SimpleJscriptManage extends AbstractJscriptManage {
 		try {
 			List<JscriptInit> inits = new ArrayList<>();
 			Class<?> c = SimpleJscriptManage.class;
-			String codeBlock = JscriptUtil.read(c.getResourceAsStream("JavaImport.js"));
+			String codeBlock = JscriptSerializableUtil.read(c.getResourceAsStream("JavaImport.js"), "utf-8");
 			inits.add(new SimpleJscriptInit(codeBlock));
-			codeBlock = JscriptUtil.read(c.getResourceAsStream("OverloadContainer.js"));
+			codeBlock = JscriptSerializableUtil.read(c.getResourceAsStream("OverloadContainer.js"), "utf-8");
 			inits.add(new SimpleJscriptInit(codeBlock));
-			codeBlock = JscriptUtil.read(c.getResourceAsStream("FunctionContainerExtend.js")).concat("('.')");
+			codeBlock = JscriptSerializableUtil.read(c.getResourceAsStream("FunctionContainerExtend.js"), "utf-8").concat("('.')");
 			inits.add(new SimpleJscriptInit(codeBlock));
-			codeBlock = JscriptUtil.read(c.getResourceAsStream("RunnerExtend.js"));
+			codeBlock = JscriptSerializableUtil.read(c.getResourceAsStream("RunnerExtend.js"), "utf-8");
 			inits.add(new SimpleJscriptInit(codeBlock));
 			return inits;
 		} catch (IOException e) {

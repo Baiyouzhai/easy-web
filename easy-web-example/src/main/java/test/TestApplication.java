@@ -3,9 +3,10 @@ package test;
 import java.io.IOException;
 
 import javax.script.ScriptException;
+import javax.sql.DataSource;
 
-import byz.easy.jscript.core.itf.JscriptEngine;
-import byz.easy.jscript.core.nashorn.NashornEngine;
+import byz.easy.jscript.core.JscriptEngine;
+import byz.easy.jscript.nashorn.NashornEngine;
 import byz.easy.jscript.springboot.JscriptManage;
 import byz.easy.jscript.springboot.JscriptProperties;
 
@@ -16,8 +17,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure;
 
@@ -25,8 +29,8 @@ import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure;
  * @author
  * @since 2020年3月16日
  */
-@SpringBootApplication(exclude = { DruidDataSourceAutoConfigure.class, DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
-//@SpringBootApplication
+//@SpringBootApplication(exclude = { DruidDataSourceAutoConfigure.class, DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
+@SpringBootApplication
 @Configuration
 public class TestApplication {
 	
@@ -35,6 +39,11 @@ public class TestApplication {
 
 	@Autowired
 	private JscriptProperties properties;
+	
+	@Autowired
+    private TransactionTemplate transactionTemplate(DataSource dataSource) {
+        return  new TransactionTemplate(new DataSourceTransactionManager(dataSource));
+    }
 	
 //	@Bean
 	public JscriptEngine getJscriptEngine() throws ScriptException {

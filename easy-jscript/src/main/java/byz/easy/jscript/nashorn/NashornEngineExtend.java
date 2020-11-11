@@ -1,18 +1,19 @@
-package byz.easy.jscript.core.nashorn;
+package byz.easy.jscript.nashorn;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.script.Compilable;
 import javax.script.Invocable;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import byz.easy.jscript.core.Jscript;
+import byz.easy.jscript.core.JscriptException;
+import byz.easy.jscript.core.JscriptFunction;
 import byz.easy.jscript.core.JscriptRuntimeException;
-import byz.easy.jscript.core.itf.Jscript;
-import byz.easy.jscript.core.itf.JscriptFunction;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 /**
@@ -23,15 +24,11 @@ import jdk.nashorn.api.scripting.ScriptObjectMirror;
  */
 public class NashornEngineExtend extends NashornEngine {
 
-	static {
-		typeMapping.put("nashornExtend", NashornEngineExtend.class);
-	}
-
 	protected Map<Integer, Jscript> jscripts; // Jscript.codeBlock.hashCode() - Jscript
 	protected Map<String, JscriptFunction> functions;
 
 	public NashornEngineExtend() {
-		this(new HashMap<String, Object>());
+		this(new ConcurrentHashMap<String, Object>());
 	}
 
 	/**
@@ -41,8 +38,8 @@ public class NashornEngineExtend extends NashornEngine {
 	public NashornEngineExtend(Map<String, Object> initVariables) {
 		engine = new ScriptEngineManager().getEngineByName("nashorn");
 		compilable = (Compilable) engine;
-		jscripts = new HashMap<>();
-		functions = new HashMap<>();
+		jscripts = new ConcurrentHashMap<>();
+		functions = new ConcurrentHashMap<>();
 		Set<Entry<String, Object>> entrySet = initVariables.entrySet();
 		for (Entry<String, Object> entry : entrySet)
 			put(entry.getKey(), entry.getValue());
@@ -74,15 +71,19 @@ public class NashornEngineExtend extends NashornEngine {
 	}
 
 	@Override
-	public Object put(Jscript jscript) throws ScriptException {
+	public Object put(Jscript jscript) throws JscriptException {
 		int runHash = jscript.getRunBody().hashCode();
 		Jscript old = jscripts.put(runHash, jscript);
 		if (jscript instanceof JscriptFunction) {
 			JscriptFunction temp = (JscriptFunction) jscript;
 			functions.put(temp.getName(), temp);
 		}
-		compilable.compile(jscript.getRunBody()).eval();
-		return old;
+		try {
+			compilable.compile(jscript.getRunBody()).eval();
+			return old;
+		} catch (ScriptException e) {
+			throw new JscriptException(e.getMessage(), e);
+		}
 	}
 
 	@Override
@@ -115,11 +116,16 @@ public class NashornEngineExtend extends NashornEngine {
 	}
 
 	@Override
-	public Object run(String name, Object... args) throws ScriptException, NoSuchMethodException {
+	public Object run(String name, Object... args) throws JscriptException {
 		Object jscript = get(name);
 		if (jscript instanceof JscriptFunction)
-			return ((Invocable) engine).invokeFunction(name, args);
-		throw new NoSuchMethodException("没有可运行的脚本 name -> " + name);
+			try {
+				return ((Invocable) engine).invokeFunction(name, args);
+			} catch (ScriptException e) {
+				throw new JscriptException("脚本运行错误：\n\t" + e.getMessage(), e);
+			} catch (NoSuchMethodException e) {
+			}
+		throw new JscriptException("没有可运行的脚本 name -> " + name);
 	}
 
 }

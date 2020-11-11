@@ -1,12 +1,7 @@
-package byz.easy.jscript.core.itf;
+package byz.easy.jscript.core;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
-
-import javax.script.ScriptException;
+import java.util.logging.Logger;
 
 /**
  * Jscript 运行所需要的载体
@@ -16,7 +11,14 @@ import javax.script.ScriptException;
  */
 public interface JscriptEngine {
 
-	Map<String, Class<?>> typeMapping = new HashMap<>();
+	Logger logger = JscriptLogger.getLogger();
+
+	/**
+	 * 引擎名称
+	 * 
+	 * @return
+	 */
+	String getJscriptEngineName();
 
 	/**
 	 * 获取引擎核心
@@ -30,20 +32,10 @@ public interface JscriptEngine {
 	 * 
 	 * @param script
 	 * @return
-	 * @throws ScriptException
+	 * @throws JscriptException
 	 */
 	@Deprecated
-	Object execute(String script) throws ScriptException;
-
-	/**
-	 * 流中执行代码，将直接注入到引擎当中，使用时需要注意引擎当中的内容被覆盖
-	 * 
-	 * @param reader
-	 * @return
-	 * @throws ScriptException
-	 */
-	@Deprecated
-	Object execute(Reader reader) throws ScriptException;
+	Object execute(String script) throws JscriptException;
 
 	/**
 	 * 设置变量数据
@@ -54,7 +46,13 @@ public interface JscriptEngine {
 	 */
 	Object put(String name, Object value);
 
-	Object put(Jscript jscript) throws ScriptException;
+	/**
+	 * 
+	 * @param jscript
+	 * @return
+	 * @throws JscriptException
+	 */
+	Object put(Jscript jscript) throws JscriptException;
 
 	/**
 	 * 所有变量名
@@ -85,19 +83,17 @@ public interface JscriptEngine {
 	 * @param name
 	 * @param args
 	 * @return
-	 * @throws ScriptException
-	 * @throws NoSuchMethodException
+	 * @throws JscriptException
 	 */
-	Object run(String name, Object... args) throws ScriptException, NoSuchMethodException;
+	Object run(String name, Object... args) throws JscriptException;
 
 	/**
 	 * 获取临时引擎，用于运行测试内容
 	 * 
+	 * @param hasInitData 是否包含初始化时的数据
 	 * @return
-	 * @throws ScriptException
-	 * @throws IOException
-	 * @throws ClassNotFoundException
+	 * @throws JscriptException
 	 */
-	JscriptEngine getTempEngine() throws ScriptException;
+	JscriptEngine getTempEngine(boolean hasInitData) throws JscriptException;
 
 }

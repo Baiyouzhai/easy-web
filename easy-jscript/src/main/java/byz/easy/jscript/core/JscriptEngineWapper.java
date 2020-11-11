@@ -1,34 +1,32 @@
-package byz.easy.jscript.core.itf;
+package byz.easy.jscript.core;
 
-import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.script.ScriptException;
 
-import byz.easy.jscript.core.JscriptException;
-import byz.easy.jscript.core.JscriptRuntimeException;
+import byz.easy.common.LambdaUtil;
 
 /**
- * 封装引擎对象</br>
- * variable function aliases 保存创建的初始状态, 构建临时引擎({@link #getTempEngine()})</br>
- * 变量名与函数名别名区分开使用, 相互互斥</br>
- * 可以给 {@link #Jscript} 下实现类取别名来调用, 但是应当要排除 {@link #JscriptFunction} 这个分支
+ * 变量名(variables)与函数名(functions)别名(aliases)区分开使用, 相互互斥</br>
+ * 可以给 {@link #Jscript} 下实现类取别名来调用
  * 
  * @author
  * @since 2020年8月13日
  */
-public interface JscriptEngineWapper extends JscriptEngine {
+public interface JscriptEngineWapper /* extends JscriptEngine */ {
 
 	/**
 	 * 绑定引擎
 	 * 
 	 * @param engine 引擎
 	 * @return
-	 * @throws ScriptException
+	 * @throws JscriptException
 	 */
-	JscriptEngineWapper bindEngine(JscriptEngine engine) throws ScriptException;
+	JscriptEngineWapper bindEngine(JscriptEngine engine) throws JscriptException;
 
 	/**
 	 * 获取绑定的引擎
@@ -36,6 +34,15 @@ public interface JscriptEngineWapper extends JscriptEngine {
 	 * @return
 	 */
 	JscriptEngine getJscriptEngine();
+
+	default void setVariables(Map<String, Object> variables) {
+		Map<String, Object> temp = getVariables();
+		temp.keySet().forEach(name -> getJscriptEngine().remove(name));
+		temp.clear();
+		variables.forEach((key, value) -> {
+			putVariable(key, value);
+		});
+	}
 
 	Map<String, Object> getVariables();
 
@@ -48,12 +55,8 @@ public interface JscriptEngineWapper extends JscriptEngine {
 	 * @throws ScriptException
 	 */
 	default Object putVariable(String name, Object value) {
-		if (value instanceof Jscript)
-			throw new JscriptRuntimeException("putVariable(String, Object) 禁用 Jscript");
-		if (getFunctions().containsKey(name))
-			throw new JscriptRuntimeException("已有函数占用此名称: name -> " + name);
-		if (getAliases().containsKey(name))
-			throw new JscriptRuntimeException("已有别名占用此名称: name -> " + name);
+		removeFunction(name);
+		removeAlias(name);
 		getJscriptEngine().put(name, value);
 		return getVariables().put(name, value);
 	}
@@ -78,8 +81,14 @@ public interface JscriptEngineWapper extends JscriptEngine {
 		getJscriptEngine().remove(name);
 		return getVariables().remove(name);
 	}
-	
-	void setFunctions(Map<String, JscriptFunction> functions) throws ScriptException;
+
+	default void setFunctions(Collection<JscriptFunction> functions) throws JscriptException {
+		Map<String, JscriptFunction> temp = getFunctions();
+		temp.keySet().forEach(name -> getJscriptEngine().remove(name));
+		temp.clear();
+		for (JscriptFunction function : functions)
+			putFunction(function);
+	}
 
 	Map<String, JscriptFunction> getFunctions();
 
@@ -88,14 +97,12 @@ public interface JscriptEngineWapper extends JscriptEngine {
 	 * 
 	 * @param function
 	 * @return
-	 * @throws ScriptException
+	 * @throws JscriptException
 	 */
-	default JscriptFunction putFunction(JscriptFunction function) throws ScriptException {
+	default JscriptFunction putFunction(JscriptFunction function) throws JscriptException {
 		String name = function.getName();
-		if (getVariables().containsKey(name))
-			throw new JscriptRuntimeException("已有变量占用此名称: name -> " + name);
-		if (getAliases().containsKey(name))
-			throw new JscriptRuntimeException("已有别名占用此名称: name -> " + name);
+		removeVariable(name);
+		removeAlias(name);
 		getJscriptEngine().put(function);
 		return getFunctions().put(name, function);
 	}
@@ -121,7 +128,28 @@ public interface JscriptEngineWapper extends JscriptEngine {
 		return getFunctions().remove(name);
 	}
 
-	void setAliases(Map<String, Jscript> aliases);
+	/**
+	 * 运行函数
+	 * 
+	 * @param name
+	 * @param args
+	 * @return
+	 * @throws JscriptException
+	 */
+	default Object runFunction(String name, Object... args) throws JscriptException {
+		JscriptFunction jscript = getFunction(name);
+		if (null != jscript)
+			return getJscriptEngine().run(name, args);
+		throw new JscriptException("没有可运行的脚本 name -> " + name);
+	}
+
+	default void setAliases(Map<String, Jscript> aliases) throws JscriptException {
+		Map<String, Jscript> temp = getAliases();
+		temp.clear();
+		aliases.forEach(LambdaUtil.apply((name, jscript) -> {
+			putAlias(name, jscript);
+		}));
+	}
 
 	/**
 	 * 所有别名
@@ -136,14 +164,12 @@ public interface JscriptEngineWapper extends JscriptEngine {
 	 * @param name
 	 * @param jscript
 	 * @return
+	 * @throws JscriptException
 	 */
-	default Jscript putAlias(String name, Jscript jscript) {
-		if (jscript instanceof JscriptFunction)
-			throw new JscriptRuntimeException("putAlias(String, Jscript) 禁用 JscriptFunction");
-		if (getVariables().containsKey(name))
-			throw new JscriptRuntimeException("已有变量占用此名称: name -> " + name);
-		if (getFunctions().containsKey(name))
-			throw new JscriptRuntimeException("已有函数占用此名称: name -> " + name);
+	default Jscript putAlias(String name, Jscript jscript) throws JscriptException {
+		removeVariable(name);
+		removeFunction(name);
+		getJscriptEngine().put(jscript);
 		return getAliases().put(name, jscript);
 	}
 
@@ -153,18 +179,23 @@ public interface JscriptEngineWapper extends JscriptEngine {
 	 * @param name
 	 * @return
 	 */
-	default Jscript getJscript(String alias) {
+	default Jscript getAlias(String alias) {
 		return getAliases().get(alias);
 	}
 
 	/**
-	 * 获取 JscriptInit 的别名
+	 * 获取 Jscript 的别名
 	 * 
 	 * @param jscript
 	 * @return
 	 */
-	default Set<String> getAlias(Jscript jscript) {
-		return getAliases().entrySet().stream().filter(entry -> entry.getValue() == jscript).map(Map.Entry::getKey).collect(Collectors.toSet());
+	default List<String> getAlias(Jscript jscript) {
+		List<String> names = new ArrayList<>();
+		getAliases().forEach((name, _jscript) -> {
+			if (_jscript == jscript)
+				names.add(name);
+		});
+		return names;
 	}
 
 	/**
@@ -178,99 +209,64 @@ public interface JscriptEngineWapper extends JscriptEngine {
 	}
 
 	/**
-	 * 移除 JscriptInit 的所有别名
+	 * 移除 Jscript 的所有别名
 	 * 
 	 * @param name
 	 * @return
 	 */
 	default void removeAliases(Jscript jscript) {
-		setAliases(getAliases().entrySet().stream().filter(entry -> entry.getValue() != jscript).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+		List<String> names = getAlias(jscript);
+		for (String name : names)
+			getAliases().remove(name);
 	}
-	
-	void setVariables(Map<String, Object> variables);
 
 	/**
 	 * 别名运行
 	 * 
 	 * @param name
 	 * @return
-	 * @throws ScriptException
-	 * @throws NoSuchMethodException 
+	 * @throws JscriptException
 	 */
-	default Object aliasRun(String name) throws ScriptException, NoSuchMethodException {
-		Jscript jscript = getJscript(name);
+	default Object runAlias(String name) throws JscriptException {
+		Jscript jscript = getAlias(name);
 		if (null != jscript)
 			return getJscriptEngine().execute(jscript.getRunBody());
-		throw new NoSuchMethodException("没有可运行的脚本 name -> " + name);
+		throw new JscriptException("没有可运行的脚本 name -> " + name);
 	}
 
-	@Override
-	default Object getScriptEngine() {
-		return getJscriptEngine().getScriptEngine();
-	}
-
-	@Override
-	@Deprecated
-	default Object execute(String script) throws ScriptException {
-		return getJscriptEngine().execute(script);
-	}
-
-	@Override
-	@Deprecated
-	default Object execute(Reader reader) throws ScriptException {
-		return getJscriptEngine().execute(reader);
-	}
-
-	@Override
-	default Object put(String name, Object value) {
-		return getJscriptEngine().put(name, value);
-	}
-
-	@Override
-	default Object put(Jscript jscript) throws ScriptException {
-		return getJscriptEngine().put(jscript);
-	}
-
-	@Override
-	default Set<String> getNames() {
-		return getJscriptEngine().getNames();
-	}
-
-	@Override
-	default Object get(String name) {
-		return getJscriptEngine().get(name);
-	}
-
-	@Override
-	default Object remove(String name) {
-		return getJscriptEngine().remove(name);
-	}
-
-	@Override
-	default Object run(String name, Object... args) throws ScriptException, NoSuchMethodException {
-		JscriptFunction function = getFunction(name);
-		if (null != function)
-			return getJscriptEngine().run(name, args);
-		throw new NoSuchMethodException("没有可运行的脚本 name -> " + name);
-	}
-
-	/**
-	 * 还原创建时的数据</br>
-	 * 注意: 子类不实现此方法注意要有无参构造
+	/*
+	 * @Override default String getJscriptEngineName() { return
+	 * getJscriptEngine().getJscriptEngineName(); }
+	 * 
+	 * @Override default Object getScriptEngine() { return
+	 * getJscriptEngine().getScriptEngine(); }
+	 * 
+	 * @Override
+	 * 
+	 * @Deprecated default Object execute(String script) throws JscriptException {
+	 * return getJscriptEngine().execute(script); }
+	 * 
+	 * @Override default Object put(String name, Object value) { return
+	 * putVariable(name, value); }
+	 * 
+	 * @Override default Object put(Jscript jscript) throws JscriptException { if
+	 * (jscript instanceof JscriptFunction) return putFunction((JscriptFunction)
+	 * jscript); return getJscriptEngine().put(jscript); }
+	 * 
+	 * @Override default Set<String> getNames() { return
+	 * getJscriptEngine().getNames(); }
+	 * 
+	 * @Override default Object get(String name) { return
+	 * getJscriptEngine().get(name); }
+	 * 
+	 * @Override default Object remove(String name) { return
+	 * getJscriptEngine().remove(name); }
+	 * 
+	 * @Override default Object run(String name, Object... args) throws
+	 * JscriptException { return getJscriptEngine().run(name, args); }
+	 * 
+	 * @Override default JscriptEngine getTempEngine(boolean hasInitData) throws
+	 * JscriptException { return getJscriptEngine().getTempEngine(hasInitData); }
 	 */
-	@Override
-	default JscriptEngineWapper getTempEngine() throws ScriptException {
-		try {
-			JscriptEngine engine = getJscriptEngine().getTempEngine();
-			JscriptEngineWapper wapper = this.getClass().newInstance();
-			wapper.bindEngine(engine);
-			wapper.setVariables(getVariables());
-			wapper.setFunctions(getFunctions());
-			wapper.setAliases(getAliases());
-			return wapper;
-		} catch (InstantiationException | IllegalAccessException e) {
-			throw new JscriptException("必须有无参构造方法", e);
-		}
-	}
 
 }

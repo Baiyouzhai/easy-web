@@ -9,31 +9,27 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "html")
 public class HtmlProperties {
 
-	private String manage = "/manage";
-	private String view = "/view";
+	protected String htmlControllerName = "htmlController";
+	protected String turnOn = "/manage/turnOn";
+	protected String shutDown = "/manage/shutDown";
 
-	public HtmlProperties() {
+	public String getHtmlControllerName() {
+		return htmlControllerName;
 	}
-
-	public HtmlProperties(String manage, String view) {
-		this.manage = manage;
-		this.view = view;
+	public void setHtmlControllerName(String htmlControllerName) {
+		this.htmlControllerName = htmlControllerName;
 	}
-
-	public String getManage() {
-		return manage;
+	public String getTurnOn() {
+		return turnOn;
 	}
-
-	public void setManage(String manage) {
-		this.manage = manage;
+	public void setTurnOn(String turnOn) {
+		this.turnOn = turnOn;
 	}
-
-	public String getView() {
-		return view;
+	public String getShutDown() {
+		return shutDown;
 	}
-
-	public void setView(String view) {
-		this.view = view;
+	public void setShutDown(String shutDown) {
+		this.shutDown = shutDown;
 	}
 
 }

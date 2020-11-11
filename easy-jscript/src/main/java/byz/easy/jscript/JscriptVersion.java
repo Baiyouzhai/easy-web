@@ -1,7 +1,7 @@
 package byz.easy.jscript;
 
 import byz.easy.common.VirtualVersion;
-import byz.easy.jscript.core.itf.Jscript;
+import byz.easy.jscript.core.Jscript;
 
 /**
  * @author 

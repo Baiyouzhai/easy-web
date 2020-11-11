@@ -11,6 +11,10 @@ public class JscriptRuntimeException extends RuntimeException {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	public JscriptRuntimeException(Throwable cause) {
+		super(cause);
+	}
+
 	public JscriptRuntimeException(String message) {
 		super(message);
 	}

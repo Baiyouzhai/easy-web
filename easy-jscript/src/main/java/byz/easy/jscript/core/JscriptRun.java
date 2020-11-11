@@ -1,8 +1,6 @@
-package byz.easy.jscript.core.itf;
+package byz.easy.jscript.core;
 
 import java.util.Map;
-
-import byz.easy.jscript.core.JscriptException;
 
 /**
  * JS引擎中直接使用内容的匿名内容, 有返回
@@ -18,7 +16,7 @@ public interface JscriptRun extends JscriptInit {
 	 * @return
 	 */
 	default String getReturnTo() {
-		return null;
+		return "";
 	}
 
 	/**
@@ -37,11 +35,16 @@ public interface JscriptRun extends JscriptInit {
 	@Override
 	default String getRunBody() {
 		String name = getReturnTo();
-		if (null == name) {
+		if ("".equals(name)) {
 			return new StringBuilder("(function () {").append(getCodeBlock()).append("})()").toString();
 		} else {
 			return new StringBuilder(getReturnTo()).append(" = ").append(" function () {").append(getCodeBlock()).append("}()").toString();
 		}
+	}
+
+	@Override
+	default JscriptRun copy() throws JscriptException {
+		return (JscriptRun) JscriptInit.super.copy();
 	}
 
 	@Override

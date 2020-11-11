@@ -44,8 +44,8 @@ spring:
 jscript:
   engine-name: nashorn
   save-path: jscript
-  use-manage: true
-  api:
-    api-help: true
-    edit-resource-path: file:../easy-vue-edit-monaco/dist/
-    open-edit: true
+  use-manage: false
+#  api:
+#    api-help: true
+#    edit-resource-path: file:../easy-vue-edit-monaco/dist/
+#    open-edit: true

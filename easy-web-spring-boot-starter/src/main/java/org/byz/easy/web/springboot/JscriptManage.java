@@ -4,7 +4,7 @@ package org.byz.easy.web.springboot;
 import java.util.HashMap;
 import java.util.Map;
 
-import byz.easy.jscript.core.itf.JscriptEngine;
+import byz.easy.jscript.core.JscriptEngine;
 
 /**
  * @author 

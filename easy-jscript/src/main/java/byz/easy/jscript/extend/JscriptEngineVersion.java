@@ -1,8 +1,11 @@
-package byz.easy.jscript.core.itf;
+package byz.easy.jscript.extend;
 
 import java.util.List;
 
 import javax.script.ScriptException;
+
+import byz.easy.jscript.core.JscriptEngineWapper;
+import byz.easy.jscript.core.JscriptFunction;
 
 /**
  * 增加包管理

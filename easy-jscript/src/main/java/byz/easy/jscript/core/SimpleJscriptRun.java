@@ -1,11 +1,6 @@
 package byz.easy.jscript.core;
 
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.StringUtils;
-
 import byz.easy.common.JavaUtil;
-import byz.easy.jscript.core.itf.JscriptRun;
 
 /**
  * @author
@@ -18,10 +13,6 @@ public class SimpleJscriptRun extends SimpleJscriptInit implements JscriptRun {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	static {
-		typeMapping.put("run", SimpleJscriptRun.class);
-	}
-
 	protected String returnTo;
 
 	public SimpleJscriptRun() {
@@ -32,7 +23,7 @@ public class SimpleJscriptRun extends SimpleJscriptInit implements JscriptRun {
 	}
 
 	public SimpleJscriptRun(String codeBlock, String returnTo) throws JscriptException {
-		super(StringUtils.isEmpty(codeBlock) ? "return 0;" : codeBlock);
+		super(codeBlock);
 		setReturnTo(returnTo);
 	}
 
@@ -43,10 +34,13 @@ public class SimpleJscriptRun extends SimpleJscriptInit implements JscriptRun {
 
 	@Override
 	public void setReturnTo(String returnTo) throws JscriptException {
-		if (null != returnTo && !"".equals(returnTo)) {
-			if (!Pattern.matches(JavaUtil.variableNameRegx, returnTo))
-				throw new JscriptException("运行返回名称不符合规范: name -> " + returnTo);
-			this.returnTo = returnTo;
+		try {
+			if (null == returnTo || "".equals(returnTo))
+				this.returnTo = "";
+			else if (JavaUtil.checkVariableName(returnTo))
+				this.returnTo = returnTo;
+		} catch (Exception e) {
+			throw new JscriptException("返回的变量名称不符合规范: name -> " + returnTo);
 		}
 	}
 

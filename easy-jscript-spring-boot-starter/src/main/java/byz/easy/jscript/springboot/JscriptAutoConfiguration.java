@@ -7,10 +7,11 @@ import java.util.concurrent.TimeUnit;
 
 import javax.script.ScriptException;
 
-import byz.easy.jscript.core.itf.JscriptEngine;
-import byz.easy.jscript.core.itf.JscriptEngineManage;
-import byz.easy.jscript.core.nashorn.NashornEngine;
-import byz.easy.jscript.core.v8.V8Engine;
+import byz.easy.jscript.core.JscriptEngine;
+import byz.easy.jscript.extend.JscriptEngineManage;
+import byz.easy.jscript.nashorn.NashornEngine;
+import byz.easy.jscript.v8.V8Engine;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -22,9 +23,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.CacheControl;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -35,6 +36,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  * @since 2019年12月23日
  */
 @EnableConfigurationProperties(JscriptProperties.class)
+@Order(300)
 public class JscriptAutoConfiguration implements WebMvcConfigurer, CommandLineRunner {
 
 	@Autowired
@@ -111,13 +113,15 @@ public class JscriptAutoConfiguration implements WebMvcConfigurer, CommandLineRu
 			System.out.println("注册JscriptAPI接口……");
 			long time = System.currentTimeMillis();
 			String controllerName = apiProperties.getApiControllerName();
-			Object handler = registerBean(JscriptApiController.class, controllerName);
+			Object handler = null;
 			if (jscriptProperties.getUseManage()) {
-				handlerMapping.registerMapping(RequestMappingInfo.paths(apiProperties.getUseUrl() + "/{name}").build(), handler, ReflectionUtils.findMethod(JscriptApiController.class, "manageUse", String.class, Map.class));
-				handlerMapping.registerMapping(RequestMappingInfo.paths(apiProperties.getAddUrl()).build(), handler, ReflectionUtils.findMethod(JscriptApiController.class, "manageAdd", Map.class));
+				handler = registerBean(JscriptManageController.class, controllerName);
+				handlerMapping.registerMapping(RequestMappingInfo.paths(apiProperties.getUseUrl() + "/{name}").build(), handler, ReflectionUtils.findMethod(JscriptManageController.class, "manageUse", String.class, Map.class));
+				handlerMapping.registerMapping(RequestMappingInfo.paths(apiProperties.getAddUrl()).build(), handler, ReflectionUtils.findMethod(JscriptManageController.class, "manageAdd", Map.class));
 			} else {
-				handlerMapping.registerMapping(RequestMappingInfo.paths(apiProperties.getUseUrl() + "/{name}").build(), handler, ReflectionUtils.findMethod(JscriptApiController.class, "engineUse", String.class, Map.class));
-				handlerMapping.registerMapping(RequestMappingInfo.paths(apiProperties.getAddUrl()).build(), handler, ReflectionUtils.findMethod(JscriptApiController.class, "engineAdd", Map.class));
+				handler = registerBean(JscriptEngineController.class, controllerName);
+				handlerMapping.registerMapping(RequestMappingInfo.paths(apiProperties.getUseUrl() + "/{name}").build(), handler, ReflectionUtils.findMethod(JscriptEngineController.class, "engineUse", String.class, Map.class));
+				handlerMapping.registerMapping(RequestMappingInfo.paths(apiProperties.getAddUrl()).build(), handler, ReflectionUtils.findMethod(JscriptEngineController.class, "engineAdd", Map.class));
 			}
 			if (apiProperties.getOpenEdit()) {
 				controllerName = apiProperties.getEditControllerName();

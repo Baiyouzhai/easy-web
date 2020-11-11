@@ -1,10 +1,10 @@
-package byz.easy.jscript.core.nashorn;
+package byz.easy.jscript.nashorn;
 
-import java.io.Reader;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
+import javax.script.Bindings;
 import javax.script.Compilable;
 import javax.script.Invocable;
 import javax.script.ScriptContext;
@@ -12,9 +12,10 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import byz.easy.jscript.core.Jscript;
+import byz.easy.jscript.core.JscriptEngine;
+import byz.easy.jscript.core.JscriptException;
 import byz.easy.jscript.core.JscriptRuntimeException;
-import byz.easy.jscript.core.itf.Jscript;
-import byz.easy.jscript.core.itf.JscriptEngine;
 
 /**
  * {@link JscriptEngine} 的简单实现
@@ -27,14 +28,13 @@ public class NashornEngine implements JscriptEngine {
 	static {
 		// System.setProperty("Dnashorn.args", "--language=es6");
 		System.setProperty("nashorn.args", "--language=es6");
-		typeMapping.put("nashorn", NashornEngine.class);
 	}
 
 	protected ScriptEngine engine;
 	protected Compilable compilable;
 
 	public NashornEngine() {
-		this(new HashMap<String, Object>());
+		this(new ConcurrentHashMap<String, Object>());
 	}
 
 	/**
@@ -48,20 +48,23 @@ public class NashornEngine implements JscriptEngine {
 	}
 
 	@Override
+	public String getJscriptEngineName() {
+		return "nashorn";
+	}
+
+	@Override
 	public Object getScriptEngine() {
 		return engine;
 	}
 
 	@Override
 	@Deprecated
-	public Object execute(String script) throws ScriptException {
-		return compilable.compile(script).eval();
-	}
-
-	@Override
-	@Deprecated
-	public Object execute(Reader reader) throws ScriptException {
-		return compilable.compile(reader).eval();
+	public Object execute(String script) throws JscriptException {
+		try {
+			return compilable.compile(script).eval();
+		} catch (ScriptException e) {
+			throw new JscriptException(e.getMessage(), e);
+		}
 	}
 
 	@Override
@@ -72,8 +75,12 @@ public class NashornEngine implements JscriptEngine {
 	}
 
 	@Override
-	public Object put(Jscript jscript) throws ScriptException {
-		return compilable.compile(jscript.getRunBody()).eval();
+	public Object put(Jscript jscript) throws JscriptException {
+		try {
+			return compilable.compile(jscript.getRunBody()).eval();
+		} catch (ScriptException e) {
+			throw new JscriptException(e.getMessage(), e);
+		}
 	}
 
 	@Override
@@ -100,17 +107,23 @@ public class NashornEngine implements JscriptEngine {
 	}
 
 	@Override
-	public Object run(String name, Object... args) throws ScriptException, NoSuchMethodException {
-		return ((Invocable) engine).invokeFunction(name, args);
+	public Object run(String name, Object... args) throws JscriptException {
+		try {
+			return ((Invocable) engine).invokeFunction(name, args);
+		} catch (ScriptException e) {
+			throw new JscriptException("脚本运行错误：\n\t" + e.getMessage(), e);
+		} catch (NoSuchMethodException e) {
+			throw new JscriptException("没有可运行的脚本 name -> " + name, e);
+		}
 	}
 
-	/**
-	 * 只含有 {@link #NashornEngine(Map)} initVariables 中的值
-	 */
 	@Override
-	public NashornEngine getTempEngine() throws ScriptException {
+	public NashornEngine getTempEngine(boolean hasInitData) throws JscriptException {
 		NashornEngine tempEngine = new NashornEngine();
-		tempEngine.engine.setBindings(engine.getBindings(ScriptContext.GLOBAL_SCOPE), ScriptContext.GLOBAL_SCOPE);
+		if (hasInitData) {
+			Bindings initVariables = engine.getBindings(ScriptContext.GLOBAL_SCOPE);
+			tempEngine.engine.setBindings(initVariables, ScriptContext.GLOBAL_SCOPE);
+		}
 		return tempEngine;
 	}
 

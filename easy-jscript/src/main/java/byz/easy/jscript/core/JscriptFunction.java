@@ -1,11 +1,9 @@
-package byz.easy.jscript.core.itf;
+package byz.easy.jscript.core;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import byz.easy.jscript.core.JscriptException;
 
 /**
  * 对应js当中的函数块</br>
@@ -17,7 +15,7 @@ import byz.easy.jscript.core.JscriptException;
  * @author
  * @since 2020年7月24日
  */
-public interface JscriptFunction extends Jscript {
+public interface JscriptFunction extends JscriptInit {
 
 	/**
 	 * 获取函数名
@@ -58,8 +56,13 @@ public interface JscriptFunction extends Jscript {
 	}
 
 	@Override
+	default JscriptFunction copy() throws JscriptException {
+		return (JscriptFunction) JscriptInit.super.copy();
+	}
+
+	@Override
 	default Map<String, Object> toMap() {
-		Map<String, Object> map = Jscript.super.toMap();
+		Map<String, Object> map = JscriptInit.super.toMap();
 		map.put("name", getName());
 		map.put("argNames", Arrays.asList(getArgNames()));
 		return map;
@@ -67,7 +70,7 @@ public interface JscriptFunction extends Jscript {
 
 	@Override
 	default void loadMap(Map<String, Object> map) throws JscriptException {
-		Jscript.super.loadMap(map);
+		JscriptInit.super.loadMap(map);
 
 		Object _name = map.get("name");
 		if (!(_name instanceof String))

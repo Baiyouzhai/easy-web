@@ -1,4 +1,4 @@
-package byz.easy.jscript.core.itf;
+package byz.easy.jscript.extend;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import javax.script.ScriptException;
 
 import byz.easy.common.JavaUtil;
+import byz.easy.jscript.core.Jscript;
 import byz.easy.jscript.core.JscriptException;
 
 /**

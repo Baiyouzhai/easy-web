@@ -6,10 +6,11 @@ import java.util.Map;
 import javax.script.ScriptException;
 
 import byz.easy.jscript.JscriptUtil;
+import byz.easy.jscript.core.Jscript;
+import byz.easy.jscript.core.JscriptEngine;
 import byz.easy.jscript.core.JscriptException;
-import byz.easy.jscript.core.itf.Jscript;
-import byz.easy.jscript.core.itf.JscriptEngine;
-import byz.easy.jscript.core.itf.JscriptFunction;
+import byz.easy.jscript.core.JscriptFunction;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;

@@ -1,13 +1,11 @@
-package byz.easy.jscript.core.itf;
+package byz.easy.jscript.core;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 import byz.easy.common.JavaUtil;
-import byz.easy.jscript.core.JscriptException;
 
 /**
  * JS引擎执行代码
@@ -17,25 +15,10 @@ import byz.easy.jscript.core.JscriptException;
  */
 public interface Jscript extends Serializable {
 
-	Map<String, Class<?>> typeMapping = new HashMap<>();
-
-	/**
-	 * 获取代码块
-	 * 
-	 * @return
-	 */
-	String getCodeBlock();
-
-	void setCodeBlock(String codeBlock);
-
 	/**
 	 * 获取函数整体既函数的正式格式
-	 * 
-	 * @return {@link #getCodeBlock()}
 	 */
-	default String getRunBody() {
-		return getCodeBlock();
-	}
+	String getRunBody();
 
 	/**
 	 * 格式最后调整
@@ -53,10 +36,10 @@ public interface Jscript extends Serializable {
 	 * @return
 	 * @throws JscriptException
 	 */
-	default <T extends Jscript> T copy() throws JscriptException {
+	default Jscript copy() throws JscriptException {
 		try {
 			JavaUtil.serializePrepare(this);
-			return (T) JavaUtil.ioClone(this);
+			return JavaUtil.ioClone(this);
 		} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
 			throw new JscriptException("Jscript复制错误 " + e.getMessage(), e);
 		}
@@ -67,23 +50,15 @@ public interface Jscript extends Serializable {
 	 * 
 	 * @return
 	 */
-	default Map<String, Object> toMap() {
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("codeBlock", getCodeBlock());
-		return map;
-	}
+	Map<String, Object> toMap();
 
 	/**
 	 * 通过Map装载属性
 	 * 
 	 * @param map
 	 * @return
+	 * @throws JscriptException 
 	 */
-	default void loadMap(Map<String, Object> map) throws JscriptException {
-		Object codeBlock = map.get("codeBlock");
-		if (!(codeBlock instanceof String))
-			throw new JscriptException("codeBlock应为String类型");
-		setCodeBlock((String) codeBlock);
-	}
+	void loadMap(Map<String, Object> map) throws JscriptException;
 
 }

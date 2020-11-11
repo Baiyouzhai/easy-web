@@ -55,7 +55,7 @@ public class JscriptFolder implements VirtualFolder<JscriptFile> {
 
 	@Override
 	public void loadFolders() throws IOException {
-		JscriptUtil.loadJscriptFolders(this);
+		JscriptSerializableUtil.loadJscriptFolders(this);
 	}
 
 	@Override
@@ -93,7 +93,7 @@ public class JscriptFolder implements VirtualFolder<JscriptFile> {
 	@Override
 	public void loadFiles() throws IOException {
 		try {
-			JscriptUtil.loadJscriptFiles(this);
+			JscriptSerializableUtil.loadJscriptFiles(this);
 		} catch (JscriptException e) {
 			throw new IOException("文件序列化失败 -> " + e.getMessage(), e);
 		}

@@ -1,4 +1,4 @@
-package byz.easy.jscript.core.itf;
+package byz.easy.jscript.extend;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -12,7 +12,10 @@ import byz.easy.jscript.JscriptFile;
 import byz.easy.jscript.JscriptFolder;
 import byz.easy.jscript.JscriptOrder;
 import byz.easy.jscript.JscriptVersion;
+import byz.easy.jscript.core.Jscript;
+import byz.easy.jscript.core.JscriptEngine;
 import byz.easy.jscript.core.JscriptException;
+import byz.easy.jscript.core.JscriptInit;
 import byz.easy.jscript.core.JscriptRuntimeException;
 
 /**

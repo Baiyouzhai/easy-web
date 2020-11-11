@@ -12,18 +12,18 @@ import java.util.stream.Collectors;
 import javax.script.ScriptException;
 
 import byz.easy.common.JavaUtil;
-import byz.easy.common.LambdaExceptionUtil;
+import byz.easy.common.LambdaUtil;
+import byz.easy.jscript.core.Jscript;
+import byz.easy.jscript.core.JscriptEngine;
 import byz.easy.jscript.core.JscriptException;
+import byz.easy.jscript.core.JscriptFunction;
+import byz.easy.jscript.core.JscriptInit;
+import byz.easy.jscript.core.JscriptRun;
 import byz.easy.jscript.core.JscriptRuntimeException;
 import byz.easy.jscript.core.SimpleJscript;
 import byz.easy.jscript.core.SimpleJscriptFunction;
 import byz.easy.jscript.core.SimpleJscriptInit;
-import byz.easy.jscript.core.itf.Jscript;
-import byz.easy.jscript.core.itf.JscriptEngine;
-import byz.easy.jscript.core.itf.JscriptEngineManage;
-import byz.easy.jscript.core.itf.JscriptFunction;
-import byz.easy.jscript.core.itf.JscriptInit;
-import byz.easy.jscript.core.itf.JscriptRun;
+import byz.easy.jscript.extend.JscriptEngineManage;
 
 /**
  * 
@@ -39,7 +39,7 @@ public abstract class AbstractJscriptManage implements JscriptEngineManage {
 	}
 
 	public static void loadJscriptFolders(JscriptFolder folder, boolean recursion) throws IOException {
-		JscriptUtil.loadJscriptFolders(folder);
+		JscriptSerializableUtil.loadJscriptFolders(folder);
 		if (recursion) {
 			List<JscriptFolder> folders = folder.getFolders();
 			for (JscriptFolder temp : folders)
@@ -96,13 +96,13 @@ public abstract class AbstractJscriptManage implements JscriptEngineManage {
 	protected Map<Jscript, JscriptVersion> versionMapping; // 记录实际文件中版本与虚拟文件中版本
 
 	public AbstractJscriptManage(String engineName, String savePath) throws ScriptException {
-		this(JscriptUtil.buildJscriptEngine(engineName), savePath);
+		this(JscriptSerializableUtil.buildJscriptEngine(engineName), savePath);
 	}
 
 	public AbstractJscriptManage(JscriptEngine engine, String savePath) throws ScriptException {
 		try {
 			this.engine = engine;
-			folder = JscriptUtil.buildJscriptFolder(savePath);
+			folder = JscriptSerializableUtil.buildJscriptFolder(savePath);
 		} catch (IOException e) {
 			throw new JscriptException("JscriptFolder 构建错误 -> " + e.getMessage(), e);
 		}
@@ -120,11 +120,11 @@ public abstract class AbstractJscriptManage implements JscriptEngineManage {
 		try {
 			List<JscriptInit> inits = new ArrayList<>();
 			Class<?> c = AbstractJscriptManage.class;
-			String codeBlock = JscriptUtil.read(c.getResourceAsStream("JavaImport.js"));
+			String codeBlock = JscriptSerializableUtil.read(c.getResourceAsStream("JavaImport.js"), "utf-8");
 			inits.add(new SimpleJscriptInit(codeBlock));
-			codeBlock = JscriptUtil.read(c.getResourceAsStream("FunctionContainer.js"));
+			codeBlock = JscriptSerializableUtil.read(c.getResourceAsStream("FunctionContainer.js"), "utf-8");
 			inits.add(new SimpleJscriptInit(codeBlock));
-			codeBlock = JscriptUtil.read(c.getResourceAsStream("Runner.js"));
+			codeBlock = JscriptSerializableUtil.read(c.getResourceAsStream("Runner.js"), "utf-8");
 			inits.add(new SimpleJscriptInit(codeBlock));
 			return inits;
 		} catch (IOException e) {
@@ -147,18 +147,18 @@ public abstract class AbstractJscriptManage implements JscriptEngineManage {
 		Map<Jscript, JscriptFile> fileMapping = new HashMap<>();
 		Map<Jscript, JscriptVersion> versionMapping = new HashMap<>();
 		try {
-			JscriptUtil.loadJscriptFolder(folder, file -> {
+			JscriptSerializableUtil.loadJscriptFolder(folder, file -> {
 				return new JscriptFolder(file.getName());
-			}, LambdaExceptionUtil.applyFunction(file -> {
-				Map<String, Object> map = JscriptUtil.read(file);
-				Jscript jscript = JscriptUtil.buildJscript(map);
+			}, LambdaUtil.applyFunction(file -> {
+				Map<String, Object> map = JscriptSerializableUtil.read(file);
+				Jscript jscript = JscriptSerializableUtil.buildJscript(map);
 				JscriptFile jscriptFile = new JscriptFile(file.getName(), jscript);
 				fileMapping.put(jscript, jscriptFile);
-				JscriptOrder order = null;
+				JscriptSource order = null;
 				if (map.containsKey("orderType") && map.containsKey("order")) {
-					order = new JscriptOrder((Integer) map.get("orderType"), (Long) map.get("order"), jscript);
+					order = new JscriptSource((Integer) map.get("orderType"), (Long) map.get("order"), jscript);
 				} else {
-					order = new JscriptOrder(orderTypeMapping.get(jscript.getClass()), file.lastModified(), jscript);
+					order = new JscriptSource(orderTypeMapping.get(jscript.getClass()), file.lastModified(), jscript);
 				}
 				orders.add(order);
 				orderMapping.put(jscript, order);
@@ -233,7 +233,7 @@ public abstract class AbstractJscriptManage implements JscriptEngineManage {
 
 	@Override
 	public Object put(String[] _package, Map<String, Object> json, String version) throws ScriptException {
-		return put(_package, JscriptUtil.buildJscript(json), version);
+		return put(_package, JscriptSerializableUtil.buildJscript(json), version);
 	}
 
 	@Override

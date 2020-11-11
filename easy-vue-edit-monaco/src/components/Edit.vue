@@ -2,7 +2,7 @@
   <div class="edit-panel">
     <div id="editContainer" class="edit-container"></div>
     <!-- 保存弹窗 -->
-    <el-dialog title="保存设置" :visible.sync="saveDialog.display">
+    <el-dialog title="保存设置" :width="'100%'" :visible.sync="saveDialog.display">
       <el-form :model="saveDialog" label-position="right" label-width="80px">
         <el-form-item label="保存至">
           <el-select v-model="saveDialog.saveTo">
@@ -12,9 +12,6 @@
         </el-form-item>
         <!-- 本地保存 -->
         <el-form label-position="right" label-width="80px" v-if="saveDialog.saveTo === 'local'">
-          <el-form-item label="文件名">
-            <el-input type="text" class="input-default-style" v-model="saveDialog.saveName"></el-input>
-          </el-form-item>
         </el-form>
         <!-- 服务器保存 -->
         <el-form
@@ -115,14 +112,6 @@
         </el-form>
         <!-- 其它保存方式 -->
         <el-form v-else></el-form>
-        <el-form-item label="输出设置">
-          <el-input
-            type="textarea"
-            autosize
-            :placeholder="saveDialog.placeholder"
-            v-model="saveDialog.saveSetting"
-          ></el-input>
-        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="saveDialog.display = false">取 消</el-button>
@@ -151,7 +140,7 @@ export default {
         edit: {
           options: {
             value: '// Enter your code \n',
-            language: 'javascript',
+            language: 'vue',
             theme: 'vs-dark',
             selectOnLineNumbers: true,
             roundedSelection: false,

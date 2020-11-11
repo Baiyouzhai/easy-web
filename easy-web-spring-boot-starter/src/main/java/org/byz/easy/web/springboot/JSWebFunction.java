@@ -2,9 +2,8 @@ package org.byz.easy.web.springboot;
 
 import java.util.Date;
 
-import byz.easy.jscript.core.SimpleJscriptFunction;
-
 import byz.easy.common.VirtualVersion;
+import byz.easy.jscript.core.SimpleJscriptFunction;
 
 /**
  * @author 

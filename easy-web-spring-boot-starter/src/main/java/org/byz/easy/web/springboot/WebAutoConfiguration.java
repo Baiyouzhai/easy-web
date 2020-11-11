@@ -15,8 +15,8 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import byz.easy.database.DatabaseManage;
+import byz.easy.jscript.core.JscriptEngine;
 import byz.easy.jscript.core.JscriptException;
-import byz.easy.jscript.core.itf.JscriptEngine;
 import byz.easy.jscript.springboot.JscriptProperties;
 
 /**

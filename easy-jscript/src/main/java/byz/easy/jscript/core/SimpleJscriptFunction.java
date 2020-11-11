@@ -5,8 +5,6 @@ import java.util.Arrays;
 import org.apache.commons.lang3.StringUtils;
 
 import byz.easy.common.JavaUtil;
-import byz.easy.jscript.core.itf.Jscript;
-import byz.easy.jscript.core.itf.JscriptFunction;
 
 /**
  * 根据JS运行函数的一些组成部分抽象化一些属性的简单实现</br>
@@ -17,16 +15,12 @@ import byz.easy.jscript.core.itf.JscriptFunction;
  * @author
  * @since 2019年12月20日
  */
-public class SimpleJscriptFunction extends SimpleJscript implements JscriptFunction {
+public class SimpleJscriptFunction extends SimpleJscriptInit implements JscriptFunction {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	static {
-		Jscript.typeMapping.put("function", SimpleJscriptFunction.class);
-	}
 
 	protected String name;
 	protected String[] argNames;
