@@ -8,7 +8,7 @@ import java.util.function.Function;
  * @author
  * @since 2020年8月24日
  */
-public class LambdaExceptionUtil {
+public class LambdaUtil {
 
 	@FunctionalInterface
 	public interface ConsumerWarrper<T, E extends Exception> {
@@ -25,7 +25,7 @@ public class LambdaExceptionUtil {
 		R apply(T t) throws E;
 	}
 
-	public static <T, E extends Exception> Consumer<T> applyConsumer(ConsumerWarrper<T, E> consumer) throws E {
+	public static <T, E extends Exception> Consumer<T> apply(ConsumerWarrper<T, E> consumer) throws E {
 		return t -> {
 			try {
 				consumer.accept(t);
@@ -35,7 +35,7 @@ public class LambdaExceptionUtil {
 		};
 	}
 
-	public static <K, V, E extends Exception> BiConsumer<K, V> applyConsumer(BiConsumerConsumerWarrper<K, V, E> consumer) throws E {
+	public static <K, V, E extends Exception> BiConsumer<K, V> apply(BiConsumerConsumerWarrper<K, V, E> consumer) throws E {
 		return (k, v) -> {
 			try {
 				consumer.accept(k, v);
@@ -45,12 +45,12 @@ public class LambdaExceptionUtil {
 		};
 	}
 
-	public static <T, R, E extends Exception> Function<T, R> applyFunction(FunctionWarrper<T, R, E> function) throws E {
+	public static <T, R, E extends Exception> Function<T, R> apply(FunctionWarrper<T, R, E> function) throws E {
 		return t -> {
 			try {
 				return function.apply(t);
-			} catch (Exception exception) {
-				throwAsUnchecked(exception);
+			} catch (Exception e) {
+				throwAsUnchecked(e);
 				return null;
 			}
 		};

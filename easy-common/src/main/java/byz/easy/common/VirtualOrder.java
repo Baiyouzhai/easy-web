@@ -8,7 +8,7 @@ package byz.easy.common;
 public interface VirtualOrder extends Comparable<VirtualOrder> {
 
 	/**
-	 * 分类次序
+	 * 类型
 	 * 
 	 * @return
 	 */
@@ -24,7 +24,7 @@ public interface VirtualOrder extends Comparable<VirtualOrder> {
 	default int compareTo(VirtualOrder obj) {
 		if (null == obj)
 			return -1;
-		if (getOrderType() == obj.getOrderType()) {
+		if (obj.getOrderType() == getOrderType()) {
 			if (getOrderNumber() == obj.getOrderNumber())
 				return 0;
 			else

@@ -2,17 +2,17 @@ package byz.easy.common;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -23,11 +23,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class JavaUtil {
 
-	public static final String fileSeparator = File.separator;
-	public static final String sysFileSeparator = Matcher.quoteReplacement(fileSeparator);
 	public static final String variableNameRegx = "^[a-zA-Z\\$_][a-zA-Z0-9\\$_]*$";
 	public static final String packageNameRegx = "^[a-zA-Z\\$_\\u4e00-\\u9fa5][a-zA-Z0-9\\$_\\u4e00-\\u9fa5]*$";
-	public static final String folderNameRegx = "[^\\/:\\*\\?\\\\\"<>\\|]*";
 
 	public static boolean checkPackageName(String name) throws IOException {
 		if (StringUtils.isEmpty(name))
@@ -45,22 +42,6 @@ public class JavaUtil {
 		if (!Pattern.matches(variableNameRegx, name))
 			throw new Exception("无效的命名：" + name);
 		return true;
-	}
-
-	public static boolean checkFolderName(String name) throws IOException {
-		if (StringUtils.isEmpty(name))
-			throw new IOException("文件夹名为空：" + name);
-		if (name.length() != name.trim().length())
-			throw new IOException("文件夹名前后包含空格：" + name);
-		if (name.length() > 213)
-			throw new IOException("文件夹名过长：" + name);
-		if (!name.matches(folderNameRegx))
-			throw new IOException("文件夹名包含非法字符：" + name);
-		return true;
-	}
-
-	public static String getSystemFormatPath(String path) {
-		return path.replaceAll("\\/", sysFileSeparator).replaceAll("\\\\", sysFileSeparator);
 	}
 
 	public static List<Integer> getCode(int num) {
@@ -104,6 +85,95 @@ public class JavaUtil {
 			}
 		}
 		return list;
+	}
+
+	public static Class<?>[] getDataTypes(Object... data) {
+		return Arrays.stream(data).map(obj -> {
+			return obj.getClass();
+		}).toArray(Class<?>[]::new);
+	}
+
+	/**
+	 * 构造参数优先匹配</br>
+	 * 通过权重计算获取最高匹配, 权重 = 8*typeA + 4*typeB + 2*typeC + 1*typeD, 存在typeE出局</br>
+	 * typeA - 构造参数类型==参数类型 -> int==int, Integer==Integer</br>
+	 * typeB - 构造参数类型==参数类型父类 -> A==? extend A</br>
+	 * typeC - 构造参数类型==参数类型转型 -> int==Integer</br>
+	 * typeD - 构造参数类型转型==参数类型 -> Integer==int</br>
+	 * typeE - 构造参数类型!=参数类型</br>
+	 * @param c
+	 * @param parameterTypes
+	 * @return
+	 */
+	public static Constructor<?> getConstructor(Class<?>c, final Class<?>... parameterTypes) {
+		Constructor<?> constructor = null;
+		try {
+			constructor = c.getDeclaredConstructor(parameterTypes);
+		} catch (NoSuchMethodException | SecurityException e) {
+			Constructor<?>[] constructors = c.getDeclaredConstructors();
+			Map<Class<?>[], Constructor<?>> mapping = new HashMap<>();
+			Class<?>[] _parameterTypes = null;
+			for (Constructor<?> _constructor : constructors) {
+				_parameterTypes = _constructor.getParameterTypes();
+				if (_parameterTypes.length == parameterTypes.length)
+					mapping.put(_parameterTypes, _constructor);
+			}
+			if (!mapping.isEmpty()) {
+				Class<?>[][] array = new Class<?>[parameterTypes.length * 8][];
+				mapping.keySet().forEach(types -> {
+					int typeA = 0, typeB = 0, typeC = 0, typeD = 0, typeE = 0;
+					for (int i =0; i < types.length; i++) {
+						if (types[i] == parameterTypes[i]) { // 构造参数类型与参数类型一致
+							++typeA;
+						} else if (types[i] == parameterTypes[i].getSuperclass()) { //构造参数类型是参数类型的父类
+							++typeB;
+						} else if (types[i] == boolean.class && parameterTypes[i] == Boolean.class) { // 构造参数类型是参数类型的基本类
+							++typeC;
+						} else if (types[i] == byte.class && parameterTypes[i] == Byte.class) {
+							++typeC;
+						} else if (types[i] == short.class && parameterTypes[i] == Short.class) {
+							++typeC;
+						} else if (types[i] == int.class && parameterTypes[i] == Integer.class) {
+							++typeC;
+						} else if (types[i] == long.class && parameterTypes[i] == Long.class) {
+							++typeC;
+						} else if (types[i] == float.class && parameterTypes[i] == Float.class) {
+							++typeC;
+						} else if (types[i] == double.class && parameterTypes[i] == Double.class) {
+							++typeC;
+						} else if (types[i] == Boolean.class && parameterTypes[i] == boolean.class) { // 构造参数类型是参数类型的封装类
+							++typeD;
+						} else if (types[i] == Byte.class && parameterTypes[i] == byte.class) {
+							++typeD;
+						} else if (types[i] == Short.class && parameterTypes[i] == short.class) {
+							++typeD;
+						} else if (types[i] == Integer.class && parameterTypes[i] == int.class) {
+							++typeD;
+						} else if (types[i] == Long.class && parameterTypes[i] == long.class) {
+							++typeD;
+						} else if (types[i] == Float.class && parameterTypes[i] == float.class) {
+							++typeD;
+						} else if (types[i] == Double.class && parameterTypes[i] == double.class) {
+							++typeD;
+						} else { // 类型不一致
+							++typeE;
+						}
+					}
+					if (0 == typeE)
+						array[8*typeA + 4*typeB + 2*typeC + 1*typeD] = types;
+				});
+				for (int i = array.length - 1; i > 0; --i) {
+					if (null != array[i]) {
+						constructor = mapping.get(array[i]);
+						break;
+					}
+				}
+			}
+		}
+		if (null == constructor)
+			return null;
+		constructor.setAccessible(true);
+		return constructor;
 	}
 
 	/**

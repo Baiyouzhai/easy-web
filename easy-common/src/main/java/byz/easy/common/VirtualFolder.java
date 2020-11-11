@@ -4,6 +4,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
+import byz.easy.common.file.FileUtil;
+
 /**
  * @author
  * @since 2020年6月29日
@@ -23,7 +25,7 @@ public interface VirtualFolder<T> {
 	List<? extends VirtualFolder<T>> getFolders();
 
 	default VirtualFolder<T> getFolder(String name) {
-		String[] names = name.split(JavaUtil.sysFileSeparator);
+		String[] names = name.split(FileUtil.sysFileSeparator);
 		if (names.length > 1)
 			return getFolder(names);
 		List<? extends VirtualFolder<T>> folders = getFolders();
@@ -50,7 +52,7 @@ public interface VirtualFolder<T> {
 	T getFile(String name);
 
 	default String getPath() {
-		return getPath(JavaUtil.fileSeparator);
+		return getPath(FileUtil.fileSeparator);
 	}
 
 	default String getPath(String join) {
