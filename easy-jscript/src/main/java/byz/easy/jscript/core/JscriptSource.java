@@ -1,13 +1,10 @@
 package byz.easy.jscript.core;
 
-import java.text.NumberFormat;
-import java.util.Arrays;
-
 public class JscriptSource implements Comparable<JscriptSource> {
 
-	protected String name;
-	protected Jscript jscript;
-	protected long order;
+	protected String name; // 对应资源名称
+	protected Jscript jscript; // 对应脚本内容
+	protected long order; // 对应加载时间顺序
 
 	public JscriptSource(String name, Jscript jscript) {
 		this(name, jscript, System.currentTimeMillis());
@@ -44,29 +41,36 @@ public class JscriptSource implements Comparable<JscriptSource> {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		JscriptSource other = (JscriptSource) obj;
+		if (jscript == null) {
+			if (other.jscript != null)
+				return false;
+		} else if (!jscript.equals(other.jscript))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (order != other.order)
+			return false;
+		return true;
+	}
+
+	@Override
 	public int compareTo(JscriptSource obj) {
 		if (null == obj)
 			return -1;
 		if (order == obj.order)
 			return 0;
 		return order < obj.order ? -1 : 1;
-	}
-
-	public static void main(String[] args) {
-		NumberFormat nf = NumberFormat.getNumberInstance();
-		nf.setMaximumFractionDigits(2);
-		double count = 0;
-		double temp = 300;
-		String[] array = new String[5];
-		for (int i = 0; i < 7;) {
-			for (int j = 1; j <= 5; j++) {
-				temp = (temp + Math.pow((8 * i), 1.7)) * (1 + 0.05 * (i * j + j));
-				count += temp;
-				array[j - 1] = nf.format(temp);
-			}
-			System.out.println(Arrays.toString(array));
-		}
-		System.out.println(Math.round(count));
 	}
 
 }

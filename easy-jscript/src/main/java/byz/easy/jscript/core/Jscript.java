@@ -60,5 +60,32 @@ public interface Jscript extends Serializable {
 	 * @throws JscriptException 
 	 */
 	void loadMap(Map<String, Object> map) throws JscriptException;
+	
+	/**
+	 * 重载equals, 默认ignore=false
+	 * 
+	 * @param jscript
+	 * @return
+	 * @see #equals(Jscript, boolean)
+	 */
+	default boolean equals(Jscript jscript) {
+		return equals(jscript, false);
+	}
+	
+	/**
+	 * 重载equals
+	 * 
+	 * @param jscript
+	 * @param ignore 忽略内容({@link #getRunBody()})是否相同
+	 * @return
+	 */
+	default boolean equals(Jscript jscript, boolean ignore) {
+		if (null == jscript)
+			return false;
+		if (ignore) {
+			return equals((Object) jscript);
+		}
+		return this == jscript ? true : getRunBody().equals(jscript.getRunBody());
+	}
 
 }

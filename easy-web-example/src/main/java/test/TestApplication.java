@@ -29,8 +29,8 @@ import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure;
  * @author
  * @since 2020年3月16日
  */
-//@SpringBootApplication(exclude = { DruidDataSourceAutoConfigure.class, DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
-@SpringBootApplication
+@SpringBootApplication(exclude = { DruidDataSourceAutoConfigure.class, DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
+//@SpringBootApplication
 @Configuration
 public class TestApplication {
 	
