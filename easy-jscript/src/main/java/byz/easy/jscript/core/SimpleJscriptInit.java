@@ -47,5 +47,11 @@ public class SimpleJscriptInit implements JscriptInit {
 			throw new JscriptException("codeBlock应为String类型");
 		setCodeBlock((String) codeBlock);
 	}
+	
+	public static void main(String[] args) {
+		SimpleJscriptInit init1 = new SimpleJscriptInit("ok");
+		SimpleJscriptInit init2 = new SimpleJscriptInit("ok");
+		System.out.println(init1.equals(init2, true));
+	}
 
 }

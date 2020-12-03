@@ -14,16 +14,17 @@ import byz.easy.common.file.FileSuffixFilter;
 import byz.easy.common.file.FileUtil;
 import byz.easy.common.file.SourceFolderFilter;
 
+/**
+ * 本地文件资源加载管理器, 负责读取本地(.json)文件转换成JscriptSource, 
+ * 
+ */
 public class LocalJscriptSourceManage implements JscriptSourceManage {
-
-	public static String orderName = "order";
-	public static String typeName = "type";
 
 	protected SourceFolderFilter sourceFilter;
 	protected boolean recursion;
-	protected Map<Jscript, File> fileMapping;
-	protected Map<Jscript, Map<String, Object>> mapMapping;
-	protected Map<Jscript, JscriptSource> sourceMapping;
+	protected Map<Jscript, File> fileMapping; // 脚本与文件的映射
+	protected Map<Jscript, Map<String, Object>> mapMapping; // 脚本与转换后的map映射(File读取后的map)
+	protected Map<Jscript, JscriptSource> sourceMapping; // 脚本与原始JscriptSource(包装)映射
 
 	public LocalJscriptSourceManage() throws JscriptException {
 		this(new File(""), false, new FileSuffixFilter(".json"));
@@ -46,18 +47,22 @@ public class LocalJscriptSourceManage implements JscriptSourceManage {
 	}
 
 	@Override
-	public void load() throws JscriptException {
+	public List<JscriptSource> load() throws JscriptException {
+		List<JscriptSource> sources = new ArrayList<>();
 		try {
 			File[] files = recursion ? (File[]) sourceFilter.getAllFiles().toArray() : sourceFilter.getFiles();
 			Map<String, Object> map = null;
 			Jscript jscript = null;
+			JscriptSource source = null;
 			for (File file : files) {
 				map = JscriptFileUtil.read(file);
-				if (map.containsKey(typeName)) {
-					jscript = builder.buildJscript((String) map.get(typeName), map);
+				if (map.containsKey(JscriptTypeName)) {
+					jscript = builder.buildJscript((String) map.get(JscriptTypeName), map);
 					fileMapping.put(jscript, file);
 					mapMapping.put(jscript, map);
-					sourceMapping.put(jscript, new JscriptSource(file.getName(), jscript, map.containsKey(orderName) ? (long) map.get(orderName) : file.lastModified()));
+					source = new JscriptSource(file.getName(), jscript, map.containsKey(JscriptOrderName) ? (long) map.get(JscriptOrderName) : file.lastModified());
+					sources.add(source);
+					sourceMapping.put(jscript, source);
 				}
 			}
 		} catch (IOException e) {
@@ -65,6 +70,7 @@ public class LocalJscriptSourceManage implements JscriptSourceManage {
 		} catch (Exception e) {
 			throw new JscriptException("JscriptClassBuilder构建对象错误", e);
 		}
+		return sources;
 	}
 
 	@Override
@@ -73,12 +79,12 @@ public class LocalJscriptSourceManage implements JscriptSourceManage {
 	}
 
 	@Override
-	public void save(Jscript jscript) {
-		JscriptSource source = sourceMapping.get(jscript);
+	public void save(JscriptSource jscriptSource) {
+		JscriptSource source = sourceMapping.get(jscriptSource.getJscript());
 		File file = null;
 		Map<String, Object> map = null;
 		if (null != source) { // 在内存中的脚本
-			file = fileMapping.get(jscript);
+			file = fileMapping.get();
 			map = mapMapping.get(jscript);
 		} else { // 新脚本
 			String type = builder.getTypeName(jscript.getClass());
@@ -103,7 +109,7 @@ public class LocalJscriptSourceManage implements JscriptSourceManage {
 	}
 
 	@Override
-	public void delete(Jscript jscript) {
+	public void delete(JscriptSource jscriptSource) {
 		originalMapSources.remove(jscript);
 		File file = sourceMapping.remove(jscript);
 		if (null != file)
@@ -111,7 +117,7 @@ public class LocalJscriptSourceManage implements JscriptSourceManage {
 	}
 
 	@Override
-	public void update(Jscript old, Jscript _new) {
+	public void update(JscriptSource old, JscriptSource _new) {
 //		JscriptSourceManage.super.update(old, _new);
 		String type = builder.getTypeName(_new.getClass());
 		File file = sourceMapping.get(old);

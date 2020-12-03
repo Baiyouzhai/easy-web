@@ -44,6 +44,11 @@ public interface JscriptFunction extends JscriptInit {
 	default String getArgName() {
 		return Arrays.stream(getArgNames()).collect(Collectors.joining(", "));
 	}
+	
+	@Override
+	default String getType() {
+		return "function";
+	}
 
 	/**
 	 * @return 默认格式 function <b>name</b> ({@link #getArgName()})
@@ -63,6 +68,7 @@ public interface JscriptFunction extends JscriptInit {
 	@Override
 	default Map<String, Object> toMap() {
 		Map<String, Object> map = JscriptInit.super.toMap();
+//		map.put("type", getType());
 		map.put("name", getName());
 		map.put("argNames", Arrays.asList(getArgNames()));
 		return map;
@@ -88,6 +94,28 @@ public interface JscriptFunction extends JscriptInit {
 			throw new JscriptException("argNames应为List<String>或String[]类型");
 		}
 		setArgNames(argNames);
+	}
+
+	/**
+	 * 重写 {@link JscriptInit#equals(Jscript, boolean)} 部分规则
+	 * @param jscript
+	 * @param ignore 忽略函数名, 参数个数, 参数名 是否相同
+	 */
+	@Override
+	default boolean equals(Jscript jscript, boolean ignore) {
+		if (this == jscript)
+			return true;
+		if (jscript instanceof JscriptFunction) {
+			String thisName = getName();
+			String targetName = ((JscriptFunction) jscript).getName();
+		}
+		String thisRunBody = getRunBody();
+		if (null == thisRunBody)
+			thisRunBody = "";
+		if (ignore && "".equals(thisRunBody) && null == jscript)
+			return true;
+		String targetRunBody = null == jscript ? "" : jscript.getRunBody();
+		return JscriptInit.super.equals(jscript, ignore);
 	}
 
 }

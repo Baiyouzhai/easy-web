@@ -3,12 +3,15 @@ package byz.easy.jscript.core;
 import java.util.List;
 
 /**
- * Jscript资源管理器
+ * JscriptSource资源管理器
  * 
  * @author
  * @since 2020年9月1日
  */
 public interface JscriptSourceManage {
+
+	public static String JscriptOrderName = "order";
+	public static String JscriptTypeName = "type";
 
 	public static JscriptClassBuilder builder = JscriptClassBuilder.getDefault();
 
@@ -18,7 +21,7 @@ public interface JscriptSourceManage {
 	 * @return
 	 * @throws JscriptException
 	 */
-	void load() throws JscriptException;
+	List<JscriptSource> load() throws JscriptException;
 
 	/**
 	 * 获取排序好的脚本
@@ -30,16 +33,16 @@ public interface JscriptSourceManage {
 	/**
 	 * 保存/添加资源
 	 * 
-	 * @param jscript
+	 * @param jscriptSource
 	 */
-	void save(Jscript jscript);
+	void save(JscriptSource jscriptSource);
 
 	/**
 	 * 删除资源
 	 * 
-	 * @param jscript
+	 * @param jscriptSource
 	 */
-	void delete(Jscript jscript);
+	void delete(JscriptSource jscriptSource);
 
 	/**
 	 * 更新资源
@@ -47,7 +50,7 @@ public interface JscriptSourceManage {
 	 * @param old
 	 * @param _new
 	 */
-	default void update(Jscript old, Jscript _new) {
+	default void update(JscriptSource old, JscriptSource _new) {
 		delete(old);
 		save(_new);
 	}

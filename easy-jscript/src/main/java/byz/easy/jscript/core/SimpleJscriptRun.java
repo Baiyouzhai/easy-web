@@ -35,7 +35,7 @@ public class SimpleJscriptRun extends SimpleJscriptInit implements JscriptRun {
 	@Override
 	public void setReturnTo(String returnTo) throws JscriptException {
 		try {
-			if (null == returnTo || "".equals(returnTo))
+			if (null == returnTo)
 				this.returnTo = "";
 			else if (JavaUtil.checkVariableName(returnTo))
 				this.returnTo = returnTo;

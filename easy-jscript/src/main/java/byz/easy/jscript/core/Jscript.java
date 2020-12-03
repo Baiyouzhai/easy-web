@@ -16,7 +16,16 @@ import byz.easy.common.JavaUtil;
 public interface Jscript extends Serializable {
 
 	/**
-	 * 获取函数整体既函数的正式格式
+	 * 脚本类型
+	 * 
+	 * @return
+	 */
+	default String getType() {
+		return "js";
+	}
+
+	/**
+	 * 获取脚本(函数)整体, 既脚本(函数)的正式格式
 	 */
 	String getRunBody();
 
@@ -71,21 +80,27 @@ public interface Jscript extends Serializable {
 	default boolean equals(Jscript jscript) {
 		return equals(jscript, false);
 	}
-	
+
 	/**
 	 * 重载equals
 	 * 
 	 * @param jscript
-	 * @param ignore 忽略内容({@link #getRunBody()})是否相同
+	 * @param ignore 忽略空对象和内容 {@link #getRunBody()} 是否相同(null | "" 忽略)
 	 * @return
 	 */
 	default boolean equals(Jscript jscript, boolean ignore) {
-		if (null == jscript)
-			return false;
-		if (ignore) {
-			return equals((Object) jscript);
-		}
-		return this == jscript ? true : getRunBody().equals(jscript.getRunBody());
+		if (this == jscript)
+			return true;
+		String targetRunBody = (ignore && null == jscript) ? "" : jscript.getRunBody();
+		String thisRunBody = getRunBody();
+		if (null == thisRunBody)
+			
+		else
+			
+			return "".equals(targetRunBody);
+		if ("".equals(thisRunBody) && null == jscript)
+			return true;
+		return thisRunBody.equals(targetRunBody);
 	}
 
 }

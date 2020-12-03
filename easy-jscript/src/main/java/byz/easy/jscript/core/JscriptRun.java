@@ -27,6 +27,11 @@ public interface JscriptRun extends JscriptInit {
 	 */
 	void setReturnTo(String returnTo) throws JscriptException;
 
+	@Override
+	default String getType() {
+		return "run";
+	}
+
 	/**
 	 * @return 默认格式</br>
 	 *         returnTo = null -> (function () {{@link #getCodeBlock()}})()</br>
@@ -50,6 +55,7 @@ public interface JscriptRun extends JscriptInit {
 	@Override
 	default Map<String, Object> toMap() {
 		Map<String, Object> map = JscriptInit.super.toMap();
+//		map.put("type", getType());
 		map.put("returnTo", getReturnTo());
 		return map;
 	}
@@ -59,9 +65,25 @@ public interface JscriptRun extends JscriptInit {
 		JscriptInit.super.loadMap(map);
 
 		Object returnTo = map.get("returnTo");
+		if (null == returnTo)
+			returnTo = "";
 		if (!(returnTo instanceof String))
 			throw new JscriptException("returnTo应为String类型");
 		setReturnTo((String) returnTo);
+	}
+
+	/**
+	 * 重写 {@link JscriptInit#equals(Jscript, boolean)} 部分规则</br>
+	 * 新增:</br>
+	 * 1.同类优先比对 {@link #getCodeBlock()} 是否相同(应该能快一点)
+	 * 
+	 * @param jscript
+	 * @param ignore 
+	 * @return
+	 */
+	@Override
+	default boolean equals(Jscript jscript, boolean ignore) {
+		return JscriptInit.super.equals(jscript, ignore);
 	}
 
 }

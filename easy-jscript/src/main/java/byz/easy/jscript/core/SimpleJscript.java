@@ -25,6 +25,11 @@ public class SimpleJscript implements Jscript {
 	}
 
 	@Override
+	public String getType() {
+		return Jscript.super.getType();
+	}
+
+	@Override
 	public String getRunBody() {
 		return runBody;
 	}
@@ -36,6 +41,7 @@ public class SimpleJscript implements Jscript {
 	@Override
 	public Map<String, Object> toMap() {
 		Map<String, Object> map = new HashMap<String, Object>();
+//		map.put("type", getType());
 		map.put("runBody", getRunBody());
 		return map;
 	}
