@@ -34,16 +34,17 @@ public interface JscriptRun extends JscriptInit {
 
 	/**
 	 * @return 默认格式</br>
-	 *         returnTo = null -> (function () {{@link #getCodeBlock()}})()</br>
-	 *         returnTo != null -> <b>returnTo</b> = function () {{@link #getCodeBlock()}}()
+	 *         getReturnTo() = null | "" -> (function () {{@link #getCodeBlock()}})()</br>
+	 *         getReturnTo() != null | "" -> <b>getReturnTo().trim()</b> = function () {{@link #getCodeBlock()}}()
 	 */
 	@Override
 	default String getRunBody() {
 		String name = getReturnTo();
+		name = null == name ? "" : name.trim();
 		if ("".equals(name)) {
 			return new StringBuilder("(function () {").append(getCodeBlock()).append("})()").toString();
 		} else {
-			return new StringBuilder(getReturnTo()).append(" = ").append(" function () {").append(getCodeBlock()).append("}()").toString();
+			return new StringBuilder(name).append(" = ").append(" function () {").append(getCodeBlock()).append("}()").toString();
 		}
 	}
 
@@ -75,7 +76,7 @@ public interface JscriptRun extends JscriptInit {
 	/**
 	 * 重写 {@link JscriptInit#equals(Jscript, boolean)} 部分规则</br>
 	 * 新增:</br>
-	 * 1.同类优先比对 {@link #getCodeBlock()} 是否相同(应该能快一点)
+	 * 1. ignore true returnTo相同即为相同,
 	 * 
 	 * @param jscript
 	 * @param ignore 
@@ -83,6 +84,12 @@ public interface JscriptRun extends JscriptInit {
 	 */
 	@Override
 	default boolean equals(Jscript jscript, boolean ignore) {
+		if (jscript instanceof JscriptRun) {
+			if (this == jscript)
+				return true;
+			String thisReturnTo = getReturnTo();
+			String targetReturnTo = ((JscriptRun) jscript).getReturnTo();
+		}
 		return JscriptInit.super.equals(jscript, ignore);
 	}
 

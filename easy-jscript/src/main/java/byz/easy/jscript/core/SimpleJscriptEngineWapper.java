@@ -179,4 +179,14 @@ public class SimpleJscriptEngineWapper implements JscriptEngineWapper {
 			aliases.remove(name);
 	}
 
+	@Override
+	public JscriptEngineWapper getTempEngine(boolean hasInitData) throws JscriptException {
+		JscriptEngine _engine = engine.getTempEngine(hasInitData);
+		JscriptEngineWapper wapper = new SimpleJscriptEngineWapper(_engine);
+		wapper.setAliases(aliases);
+		wapper.setFunctions(functions.values());
+		wapper.setVariables(variables);
+		return wapper;
+	}
+
 }

@@ -17,7 +17,7 @@ import byz.easy.common.LambdaUtil;
  * @author
  * @since 2020年8月13日
  */
-public interface JscriptEngineWapper /* extends JscriptEngine */ {
+public interface JscriptEngineWapper extends JscriptEngine {
 
 	/**
 	 * 绑定引擎
@@ -37,8 +37,9 @@ public interface JscriptEngineWapper /* extends JscriptEngine */ {
 
 	default void setVariables(Map<String, Object> variables) {
 		Map<String, Object> temp = getVariables();
-		temp.keySet().forEach(name -> getJscriptEngine().remove(name));
-		temp.clear();
+		JscriptEngine engine = getJscriptEngine();
+		temp.keySet().forEach(name -> engine.remove(name));
+//		temp.clear();
 		variables.forEach((key, value) -> {
 			putVariable(key, value);
 		});
@@ -234,39 +235,61 @@ public interface JscriptEngineWapper /* extends JscriptEngine */ {
 		throw new JscriptException("没有可运行的脚本 name -> " + name);
 	}
 
-	/*
-	 * @Override default String getJscriptEngineName() { return
-	 * getJscriptEngine().getJscriptEngineName(); }
-	 * 
-	 * @Override default Object getScriptEngine() { return
-	 * getJscriptEngine().getScriptEngine(); }
-	 * 
-	 * @Override
-	 * 
-	 * @Deprecated default Object execute(String script) throws JscriptException {
-	 * return getJscriptEngine().execute(script); }
-	 * 
-	 * @Override default Object put(String name, Object value) { return
-	 * putVariable(name, value); }
-	 * 
-	 * @Override default Object put(Jscript jscript) throws JscriptException { if
-	 * (jscript instanceof JscriptFunction) return putFunction((JscriptFunction)
-	 * jscript); return getJscriptEngine().put(jscript); }
-	 * 
-	 * @Override default Set<String> getNames() { return
-	 * getJscriptEngine().getNames(); }
-	 * 
-	 * @Override default Object get(String name) { return
-	 * getJscriptEngine().get(name); }
-	 * 
-	 * @Override default Object remove(String name) { return
-	 * getJscriptEngine().remove(name); }
-	 * 
-	 * @Override default Object run(String name, Object... args) throws
-	 * JscriptException { return getJscriptEngine().run(name, args); }
-	 * 
-	 * @Override default JscriptEngine getTempEngine(boolean hasInitData) throws
-	 * JscriptException { return getJscriptEngine().getTempEngine(hasInitData); }
-	 */
+	@Override
+	@Deprecated
+	default String getJscriptEngineName() {
+		return getJscriptEngine().getJscriptEngineName();
+	}
+
+	@Override
+	@Deprecated
+	default Object getScriptEngine() {
+		return getJscriptEngine().getScriptEngine();
+	}
+
+	@Override
+	@Deprecated
+	default Object execute(String script) throws JscriptException {
+		return getJscriptEngine().execute(script);
+	}
+
+	@Override
+	@Deprecated
+	default Object put(String name, Object value) {
+		return getJscriptEngine().put(name, value);
+	}
+
+	@Override
+	@Deprecated
+	default Object put(Jscript jscript) throws JscriptException {
+		return getJscriptEngine().put(jscript);
+	}
+
+	@Override
+	@Deprecated
+	default Set<String> getNames() {
+		return getJscriptEngine().getNames();
+	}
+
+	@Override
+	@Deprecated
+	default Object get(String name) {
+		return getJscriptEngine().get(name);
+	}
+
+	@Override
+	@Deprecated
+	default Object remove(String name) {
+		return getJscriptEngine().remove(name);
+	}
+
+	@Override
+	@Deprecated
+	default Object run(String name, Object... args) throws JscriptException {
+		return getJscriptEngine().run(name, args);
+	}
+
+	@Override
+	JscriptEngineWapper getTempEngine(boolean hasInitData) throws JscriptException;
 
 }

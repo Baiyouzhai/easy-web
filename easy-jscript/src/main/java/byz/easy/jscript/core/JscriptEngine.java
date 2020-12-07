@@ -86,6 +86,10 @@ public interface JscriptEngine {
 	 * @throws JscriptException
 	 */
 	Object run(String name, Object... args) throws JscriptException;
+	
+	default JscriptEngine getTempEngine() throws JscriptException {
+		return getTempEngine(true);
+	}
 
 	/**
 	 * 获取临时引擎，用于运行测试内容

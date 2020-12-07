@@ -31,6 +31,7 @@ public class NashornEngine implements JscriptEngine {
 	}
 
 	protected ScriptEngine engine;
+	protected Map<String, Object> initVariables;
 	protected Compilable compilable;
 
 	public NashornEngine() {
@@ -44,7 +45,8 @@ public class NashornEngine implements JscriptEngine {
 	public NashornEngine(Map<String, Object> initVariables) {
 		engine = new ScriptEngineManager().getEngineByName("nashorn");
 		compilable = (Compilable) engine;
-		engine.getBindings(ScriptContext.GLOBAL_SCOPE).putAll(initVariables);
+		initVariables = engine.getBindings(ScriptContext.GLOBAL_SCOPE);
+		initVariables.putAll(initVariables);
 	}
 
 	@Override
@@ -119,12 +121,7 @@ public class NashornEngine implements JscriptEngine {
 
 	@Override
 	public NashornEngine getTempEngine(boolean hasInitData) throws JscriptException {
-		NashornEngine tempEngine = new NashornEngine();
-		if (hasInitData) {
-			Bindings initVariables = engine.getBindings(ScriptContext.GLOBAL_SCOPE);
-			tempEngine.engine.setBindings(initVariables, ScriptContext.GLOBAL_SCOPE);
-		}
-		return tempEngine;
+		return hasInitData ? new NashornEngine(initVariables) : new NashornEngine();
 	}
 
 }

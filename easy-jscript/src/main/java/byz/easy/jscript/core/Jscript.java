@@ -91,16 +91,19 @@ public interface Jscript extends Serializable {
 	default boolean equals(Jscript jscript, boolean ignore) {
 		if (this == jscript)
 			return true;
-		String targetRunBody = (ignore && null == jscript) ? "" : jscript.getRunBody();
 		String thisRunBody = getRunBody();
-		if (null == thisRunBody)
-			
-		else
-			
-			return "".equals(targetRunBody);
-		if ("".equals(thisRunBody) && null == jscript)
-			return true;
-		return thisRunBody.equals(targetRunBody);
+		String targetRunBody = null;
+		if (null != jscript)
+			targetRunBody = jscript.getRunBody();
+		if (ignore) {
+			targetRunBody = targetRunBody == null ? "" : jscript.getRunBody();
+			return (null == thisRunBody ? "" : thisRunBody).equals(null == targetRunBody ? "" : targetRunBody);
+		}
+		if (null != thisRunBody)
+			return thisRunBody.equals(targetRunBody);
+		if (null != targetRunBody)
+			return targetRunBody.equals(thisRunBody);
+		return true;
 	}
 
 }

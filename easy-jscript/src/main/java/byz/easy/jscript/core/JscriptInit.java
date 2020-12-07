@@ -69,21 +69,22 @@ public interface JscriptInit extends Jscript {
 	 */
 	@Override
 	default boolean equals(Jscript jscript, boolean ignore) {
-		if (this == jscript)
-			return true;
-		String thisCodeBlock = getCodeBlock();
-		if (null == thisCodeBlock)
-			thisCodeBlock = "";
 		if (jscript instanceof JscriptInit) {
+			if (this == jscript)
+				return true;
+			String thisCodeBlock = getCodeBlock();
 			String targetCodeBlock = ((JscriptInit) jscript).getCodeBlock();
-			if (null == targetCodeBlock)
-				targetCodeBlock = "";
-			return thisCodeBlock.equals(targetCodeBlock);
-		}
-		if (ignore && "".equals(thisCodeBlock) && null == jscript)
+			if (ignore) {
+				targetCodeBlock = targetCodeBlock == null ? "" : jscript.getRunBody();
+				return (null == thisCodeBlock ? "" : thisCodeBlock).equals(null == targetCodeBlock ? "" : targetCodeBlock);
+			}
+			if (null != thisCodeBlock)
+				return thisCodeBlock.equals(targetCodeBlock);
+			if (null != targetCodeBlock)
+				return targetCodeBlock.equals(thisCodeBlock);
 			return true;
-		String targetRunBody = null == jscript ? "" : jscript.getRunBody();
-		return thisCodeBlock.equals(targetRunBody);
+		}
+		return Jscript.super.equals(jscript, ignore);
 	}
 
 }
