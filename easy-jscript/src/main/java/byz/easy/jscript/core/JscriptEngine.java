@@ -86,7 +86,14 @@ public interface JscriptEngine {
 	 * @throws JscriptException
 	 */
 	Object run(String name, Object... args) throws JscriptException;
-	
+
+	/**
+	 * default true
+	 * 
+	 * @see #getTempEngine(boolean)
+	 * @return
+	 * @throws JscriptException
+	 */
 	default JscriptEngine getTempEngine() throws JscriptException {
 		return getTempEngine(true);
 	}

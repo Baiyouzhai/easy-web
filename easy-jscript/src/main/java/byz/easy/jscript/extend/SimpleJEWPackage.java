@@ -8,8 +8,8 @@ import javax.script.ScriptException;
 import byz.easy.jscript.core.Jscript;
 import byz.easy.jscript.core.JscriptEngine;
 import byz.easy.jscript.core.JscriptFunction;
-import byz.easy.jscript.core.SimpleJscriptEngineWapper;
-import byz.easy.jscript.core.SimpleJscriptFunction;
+import byz.easy.jscript.core.StandardJscriptEngineWapper;
+import byz.easy.jscript.core.StandardJscriptFunction;
 import byz.easy.jscript.nashorn.NashornEngine;
 
 /**

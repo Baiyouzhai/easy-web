@@ -20,9 +20,9 @@ import byz.easy.jscript.core.JscriptFunction;
 import byz.easy.jscript.core.JscriptInit;
 import byz.easy.jscript.core.JscriptRun;
 import byz.easy.jscript.core.JscriptRuntimeException;
-import byz.easy.jscript.core.SimpleJscript;
-import byz.easy.jscript.core.SimpleJscriptFunction;
-import byz.easy.jscript.core.SimpleJscriptInit;
+import byz.easy.jscript.core.StandardJscript;
+import byz.easy.jscript.core.StandardJscriptFunction;
+import byz.easy.jscript.core.StandardJscriptInit;
 import byz.easy.jscript.extend.JscriptEngineManage;
 
 /**
@@ -33,9 +33,9 @@ import byz.easy.jscript.extend.JscriptEngineManage;
 public abstract class AbstractJscriptManage implements JscriptEngineManage {
 
 	static {
-		orderTypeMapping.put(SimpleJscript.class, 100);
-		orderTypeMapping.put(SimpleJscriptInit.class, 200);
-		orderTypeMapping.put(SimpleJscriptFunction.class, 300);
+		orderTypeMapping.put(StandardJscript.class, 100);
+		orderTypeMapping.put(StandardJscriptInit.class, 200);
+		orderTypeMapping.put(StandardJscriptFunction.class, 300);
 	}
 
 	public static void loadJscriptFolders(JscriptFolder folder, boolean recursion) throws IOException {
@@ -121,11 +121,11 @@ public abstract class AbstractJscriptManage implements JscriptEngineManage {
 			List<JscriptInit> inits = new ArrayList<>();
 			Class<?> c = AbstractJscriptManage.class;
 			String codeBlock = JscriptSerializableUtil.read(c.getResourceAsStream("JavaImport.js"), "utf-8");
-			inits.add(new SimpleJscriptInit(codeBlock));
+			inits.add(new StandardJscriptInit(codeBlock));
 			codeBlock = JscriptSerializableUtil.read(c.getResourceAsStream("FunctionContainer.js"), "utf-8");
-			inits.add(new SimpleJscriptInit(codeBlock));
+			inits.add(new StandardJscriptInit(codeBlock));
 			codeBlock = JscriptSerializableUtil.read(c.getResourceAsStream("Runner.js"), "utf-8");
-			inits.add(new SimpleJscriptInit(codeBlock));
+			inits.add(new StandardJscriptInit(codeBlock));
 			return inits;
 		} catch (IOException e) {
 			throw new JscriptRuntimeException("初始化失败，内部文件读取错误", e);

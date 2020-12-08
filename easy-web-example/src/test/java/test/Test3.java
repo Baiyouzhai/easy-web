@@ -10,8 +10,8 @@ import byz.easy.jscript.core.Jscript;
 import byz.easy.jscript.core.JscriptFileUtil;
 import byz.easy.jscript.core.JscriptLogger;
 import byz.easy.jscript.core.LocalJscriptSourceManage;
-import byz.easy.jscript.core.SimpleJscriptFunction;
-import byz.easy.jscript.core.SimpleJscriptInit;
+import byz.easy.jscript.core.StandardJscriptFunction;
+import byz.easy.jscript.core.StandardJscriptInit;
 
 public class Test3 extends Thread {
 

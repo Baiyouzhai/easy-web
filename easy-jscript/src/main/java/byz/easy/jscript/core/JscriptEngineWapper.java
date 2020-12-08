@@ -39,7 +39,7 @@ public interface JscriptEngineWapper extends JscriptEngine {
 		Map<String, Object> temp = getVariables();
 		JscriptEngine engine = getJscriptEngine();
 		temp.keySet().forEach(name -> engine.remove(name));
-//		temp.clear();
+		temp.clear();
 		variables.forEach((key, value) -> {
 			putVariable(key, value);
 		});

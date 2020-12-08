@@ -9,7 +9,7 @@ import javax.script.Bindings;
 
 import byz.easy.common.JavaUtil;
 import byz.easy.jscript.core.JscriptException;
-import byz.easy.jscript.core.SimpleJscriptFunction;
+import byz.easy.jscript.core.StandardJscriptFunction;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 /**
@@ -42,7 +42,7 @@ public class NashornUtil {
 				String functionBody = obj.toString();
 				String[] argNames = getArgNames(functionBody);
 				String codeBlock = getCodeBlock(functionBody);
-				return new SimpleJscriptFunction((String) ((Bindings) obj).get("name"), argNames, codeBlock);
+				return new StandardJscriptFunction((String) ((Bindings) obj).get("name"), argNames, codeBlock);
 			} else if ("Object".equals(type)) {
 				Map<String, Object> temp = new HashMap<String, Object>();
 				temp.putAll((Bindings) obj);

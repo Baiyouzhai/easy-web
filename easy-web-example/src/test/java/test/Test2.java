@@ -7,8 +7,8 @@ import byz.easy.common.file.FileSuffixFilter;
 import byz.easy.jscript.core.Jscript;
 import byz.easy.jscript.core.JscriptFileUtil;
 import byz.easy.jscript.core.LocalJscriptSourceManage;
-import byz.easy.jscript.core.SimpleJscriptFunction;
-import byz.easy.jscript.core.SimpleJscriptInit;
+import byz.easy.jscript.core.StandardJscriptFunction;
+import byz.easy.jscript.core.StandardJscriptInit;
 
 public class Test2 {
 
@@ -22,7 +22,7 @@ public class Test2 {
 			for (Jscript jscript : list) {
 				System.out.println(jscript.toMap().toString());
 			}
-			Jscript fun = new SimpleJscriptFunction("aaaa", "temp = 11; return temp;");
+			Jscript fun = new StandardJscriptFunction("aaaa", "temp = 11; return temp;");
 			fileLoader.save(fun);
 			Thread.sleep(8000);
 			fileLoader.delete(fun);

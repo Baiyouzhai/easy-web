@@ -19,11 +19,11 @@ public class JscriptClassBuilder extends ClassBuilderRegister {
 		try {
 			if (null == $default) {
 				$default = new JscriptClassBuilder();
-				$default.registJscript("js", SimpleJscript.class);
-				$default.registJscript("var", SimpleJscriptVariable.class);
-				$default.registJscript("init", SimpleJscriptInit.class);
-				$default.registJscript("run", SimpleJscriptRun.class);
-				$default.registJscript("function", SimpleJscriptFunction.class);
+				$default.registJscript("js", StandardJscript.class);
+				$default.registJscript("var", StandardJscriptVariable.class);
+				$default.registJscript("init", StandardJscriptInit.class);
+				$default.registJscript("run", StandardJscriptRun.class);
+				$default.registJscript("function", StandardJscriptFunction.class);
 			}
 			return $default;
 		} catch (JscriptException e) {

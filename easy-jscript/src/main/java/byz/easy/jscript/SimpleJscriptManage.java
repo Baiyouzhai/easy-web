@@ -13,7 +13,7 @@ import byz.easy.jscript.core.JscriptEngine;
 import byz.easy.jscript.core.JscriptFunction;
 import byz.easy.jscript.core.JscriptInit;
 import byz.easy.jscript.core.JscriptRuntimeException;
-import byz.easy.jscript.core.SimpleJscriptInit;
+import byz.easy.jscript.core.StandardJscriptInit;
 
 /**
  * 
@@ -46,13 +46,13 @@ public class SimpleJscriptManage extends AbstractJscriptManage {
 			List<JscriptInit> inits = new ArrayList<>();
 			Class<?> c = SimpleJscriptManage.class;
 			String codeBlock = JscriptSerializableUtil.read(c.getResourceAsStream("JavaImport.js"), "utf-8");
-			inits.add(new SimpleJscriptInit(codeBlock));
+			inits.add(new StandardJscriptInit(codeBlock));
 			codeBlock = JscriptSerializableUtil.read(c.getResourceAsStream("OverloadContainer.js"), "utf-8");
-			inits.add(new SimpleJscriptInit(codeBlock));
+			inits.add(new StandardJscriptInit(codeBlock));
 			codeBlock = JscriptSerializableUtil.read(c.getResourceAsStream("FunctionContainerExtend.js"), "utf-8").concat("('.')");
-			inits.add(new SimpleJscriptInit(codeBlock));
+			inits.add(new StandardJscriptInit(codeBlock));
 			codeBlock = JscriptSerializableUtil.read(c.getResourceAsStream("RunnerExtend.js"), "utf-8");
-			inits.add(new SimpleJscriptInit(codeBlock));
+			inits.add(new StandardJscriptInit(codeBlock));
 			return inits;
 		} catch (IOException e) {
 			throw new JscriptRuntimeException("初始化失败，内部文件读取错误", e);
